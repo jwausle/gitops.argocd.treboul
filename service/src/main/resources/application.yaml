@@ -1,0 +1,37 @@
+management:
+  endpoint:
+    metrics:
+      enabled: true
+    health:
+      showDetails: "always"
+      enabled: true
+    prometheus:
+      enabled: true
+  endpoints:
+    enabledByDefault: true
+    web:
+      exposure:
+        include: "*"
+  info:
+    build:
+      enabled: true
+    defaults:
+      enabled: true
+    env:
+      enabled: true
+  metrics:
+    tags:
+      application: "@project.artifactId@"
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  httpExchanges:
+    recording:
+      include: "REQUEST_HEADERS,RESPONSE_HEADERS,TIME_TAKEN,PRINCIPAL"
+
+spring:
+  application:
+    name: sample
+
+
