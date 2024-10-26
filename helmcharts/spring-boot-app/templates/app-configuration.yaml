@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "spring-boot-app.fullname" . }}-config
+  labels:
+    {{- include "spring-boot-app.labels" . | nindent 4 }}
+data:
+  application.yaml: |
+    {{- include "spring-boot-app.mergedConfig" . | nindent 4 }}
+    {{- $secrets := (include "spring-boot-app.secrets" . | fromYaml).secrets }}
+    {{- if $secrets }}
+    ---
+    # Import mounted kubernetes secrets as application properties
+    spring:
+      config:
+        import: optional:configtree:/var/run/secrets/app/
+    {{- end }}

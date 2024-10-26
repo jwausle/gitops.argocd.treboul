@@ -37,3 +37,4 @@ build/
 *.bak
 .DS_Store
 treboul-route/
+*.tgz

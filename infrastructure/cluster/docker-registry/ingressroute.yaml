@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: docker-registry-external
+  namespace: traefik
+spec:
+  type: ExternalName
+  # Zu Hause
+  externalName: 192.168.0.204
+  # Büro
+  # externalName: 192.168.180.22
+  ports:
+    - port: 5001
+      targetPort: 5001
+      protocol: TCP
+      name: http
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: docker-registry-tls
+  namespace: traefik
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`docker.treboul.localhost`)
+      kind: Rule
+      services:
+        - name: docker-registry-external
+          port: 5001
+  tls: {}
+

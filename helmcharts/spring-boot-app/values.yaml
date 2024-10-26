@@ -1,0 +1,194 @@
+# Default values for spring-boot-app.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+# Flag to schedule an init container to print out mounted configs and secrets.
+debug: false
+
+image:
+  # repository must be provided externally and should point to a
+  # spring boot application
+  repository: ""
+  pullPolicy: Always
+  # tag must be provided externally and should represent the version
+  # of the spring boot application
+  tag: ""
+
+app:
+  # The configuration root path. Is used to mount the configuration
+  # into the right directory
+  pathInContainer: /etc/spring
+  # specify the port of the application. This will overwrite the server.port property which might have been bundled
+  # in an application properties file in tha spring boot application. However, it will not take any effect if a
+  # SERVER_PORT extra-env or server.port property underneath app.config or app.rawConfig is defined
+  port: 8080
+  # liveness and readiness prove paths for the application, helm variables are supported
+  liveness: '{{ include "spring-boot-app.contextPath" . | trim }}/internal/actuator/health/liveness'
+  readiness: '{{ include "spring-boot-app.contextPath" . | trim }}/internal/actuator/health/readiness'
+  # spring boot application properties. The properties will be merged with the ones defined underneath app.rawConfig
+  # and provided to the application through a config map which gets mounted into the container which runs the
+  # application. In contrast to app.rawConfig specific values of the configuration can be overridden more easily
+  config: { }
+  # references to kubernetes secrets that will be mounted into the container and made available to the application
+  # as application properties. Each specified key represents a spring application property
+  secrets: [ ]
+  # e.g.
+  #  - name: secret-with-properties
+  #    optional: true
+  #  - name: db-secret
+  #    useEnv: true # (default: false|undefined)
+  #    items:
+  #      - key: SPRING_DATASOURCE_PASSWORD
+  #        path: spring.datasource.password
+
+  # spring boot application properties can be placed underneath in yaml format the properties will be merged with
+  # the ones defined underneath app.config and provided to the application through a config map which gets mounted
+  # into the container which runs the application. The config specified below is evaluated using the tpl function
+  # meaning helm template variables can be used
+  rawConfig: |
+  # Additional labels that will only be applied to the Deployment
+  labels: { }
+  # default secrets that will be merged with user provided secrets
+  defaultSecrets:
+    # default secret for actuator endpoint auth
+    database:
+      # enable or disable usage of the default secret. If disabled, allows the user to specify a user defined
+      # configuration
+      enabled: false
+      # The secret spec to use (should not be changed, instead set the enabled flag to false and specify your
+      # own actuator spring boot properties as needed)
+      spec:
+        # The name of the existing secret.
+        name: database-password
+        optional: false
+        items:
+          - key: username
+            path: spring.datasource.username
+          - key: password
+            path: spring.datasource.password
+
+# specify extra environment configuration for the application. The extra environment will be evaluated with the tpl
+# function, which means helm variables are supported
+# e.g.:
+# - name: SPRING_JPA_URL
+#   value: "jdbc:mysql:database-service/db"
+extraEnv: |
+
+# specify extra volumes. The extra volumes will be evaluated with the tpl function, which means helm variables
+# are supported
+# e.g.:
+# - name: my-volume
+#   configMap:
+#     name: my-config-to-mount
+extraVolumes: |
+
+# specify extra volume mounts. The extra volume mounts will be evaluated with the tpl function, which means
+# helm variables are supported
+# e.g.:
+# - name: my-volume
+#   mountPath: "/app/data"
+extraVolumeMounts: |
+
+# Configure postgresql, can be enabled/disabled through postgresql.enabled property. If disabled, you will have
+# to configure a database connection manually, if appropriate
+postgresql:
+  enabled: false
+  service:
+    ports:
+      postgresql: "5432"
+  auth:
+    username: "app_user"
+    database: "app_database"
+    existingSecret: "{{ .Release.Name }}-postgres-secret"
+
+imagePullSecrets: [ ]
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: { }
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: { }
+
+podSecurityContext: { }
+# fsGroup: 2000
+
+securityContext: { }
+# capabilities:
+#   drop:
+#   - ALL
+# readOnlyRootFilesystem: true
+# runAsNonRoot: true
+# runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+  # Additional service labels
+  # The labels will be passed through the helm tpl function, so helm variable substitution is supported
+  labels:
+    monitor: "{{ .Release.Namespace }}-service"
+
+ingressroute:
+  # enable/disable the deployment of a traefik ingressroute resource with associated middleware to
+  # configure routing to the service. If enabled, you will need to specify ingressroute.path as well
+  enabled: true
+  # The routing path prefix from the loadbalancer to the service (trailing slash will be stripped,
+  # a leading slash will be added, if not already present). Will be evaluated with the helm tpl function,
+  # meaning go template variables are supported
+  path: "/api/{{ .Release.Name }}"
+  # Enable CORS requests for the service ingress route.
+  # - be aware to allow it because it has big security impact
+  # - it's recomment to permit it only at development environments
+  cors:
+    allowed: false
+
+ingress:
+  # enable/disable the deployment of an ingress resource to configure routing to the service
+  enabled: false
+  className: ""
+  annotations: { }
+  # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: [ ]
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: { }
+# We usually recommend not to specify default resources and to leave this as a conscious
+# choice for the user. This also increases chances charts run on environments with little
+# resources, such as Minikube. If you do want to specify resources, uncomment the following
+# lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+# limits:
+#   cpu: 100m
+#   memory: 128Mi
+# requests:
+#   cpu: 100m
+#   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: { }
+
+tolerations: [ ]
+
+affinity: { }
