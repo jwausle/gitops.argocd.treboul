@@ -14,4 +14,3 @@ spec:
     path: infrastructure/services/whoami/treboul.localhost
     repoURL: https://github.com/jwausle/gitops.argocd.treboul.git
     targetRevision: main
-    kustomize: {}
