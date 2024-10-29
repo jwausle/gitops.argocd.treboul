@@ -2,8 +2,6 @@ apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: whoami-tls
-  labels:
-    test: {{ required "'test.name' is required" .Values.test.name  }}
 spec:
   entryPoints:
     - websecure

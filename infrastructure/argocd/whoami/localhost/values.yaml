@@ -3,4 +3,4 @@ whoami:
     hello: world
 
 test:
-  name: null
+  name: "null"
