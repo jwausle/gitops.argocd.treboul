@@ -17,9 +17,10 @@ configs:
   secret:
     # admin:admin password in https://www.browserling.com/tools/bcrypt
     argocdServerAdminPassword: "$2a$10$siTxM3xIt3QXrhImrWhksuq2nShQBLiXcdrR.8xtD5XkrZJl5op4m"
-#  cm:
-#    params:
-#      server:
+  cm:
+    params:
+      server:
+        insecureSkipVerify: true
 ##        rootpath: "/argocd"
 ##        basehref: "/argo-cd"
 ##        x.frame.options: ""

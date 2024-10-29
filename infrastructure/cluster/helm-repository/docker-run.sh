@@ -8,7 +8,7 @@ if docker stats --no-stream $CONTAINER_NAME; then
   exit 0
 fi
 
-docker run --rm  \
+docker run --rm -d \
     --name $CONTAINER_NAME \
     -p 5002:8080 \
     -e DEBUG=1 \
