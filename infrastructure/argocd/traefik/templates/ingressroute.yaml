@@ -6,7 +6,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`argocd.treboul.localhost`)
+    - match: Host(`argocd.localhost`)
       kind: Rule
       services:
         - name: argocd-server

@@ -7,21 +7,16 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
-    namespace: whoami2
+    namespace: whoami
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: infrastructure/apps/whoami/localhost
+    path: infrastructure/argocd/whoami/localhost
     repoURL: https://github.com/jwausle/gitops.argocd.treboul.git
     targetRevision: main
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
       - PruneLast=true
-#operation:
-#  sync:
-#    prune: true
-#  syncPolicy:
-#    automated:
-#      prune: true
-#      selfheal: true
+    automated:
+      prune: true

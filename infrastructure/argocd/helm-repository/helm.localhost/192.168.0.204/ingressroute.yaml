@@ -5,7 +5,7 @@ metadata:
   namespace: traefik
 spec:
   type: ExternalName
-  externalName: 192.168.180.22
+  externalName: 192.168.0.204
   ports:
     - port: 5002
       targetPort: 5002
@@ -21,7 +21,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`helm.treboul.localhost`)
+    - match: Host(`helm.localhost`)
       kind: Rule
       services:
         - name: helm-repository-external
