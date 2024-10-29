@@ -40,4 +40,5 @@ treboul-route/
 *.tgz
 
 
-infrastructure/cluster/k3s-cluster/docker-volume-k3s/k3s.yaml
+k3s.yaml
+kubeconfig.yaml

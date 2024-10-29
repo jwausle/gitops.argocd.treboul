@@ -1,3 +1,6 @@
 whoami:
   podLabels:
     hello: world
+
+test:
+  name: null

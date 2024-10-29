@@ -1,0 +1,9 @@
+mirrors:
+  docker.treboul.localhost:
+    endpoint:
+      - "http://192.168.180.22:5001"
+configs:
+  192.168.180.22:5001:
+    auth:
+      username: admin
+      password: admin

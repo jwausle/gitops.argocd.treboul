@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: helm-repository-external
+  namespace: traefik
+spec:
+  type: ExternalName
+  externalName: 192.168.180.22
+  ports:
+    - port: 5002
+      targetPort: 5002
+      protocol: TCP
+      name: http
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: helm-repository-tls
+  namespace: traefik
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`helm.treboul.localhost`)
+      kind: Rule
+      services:
+        - name: helm-repository-external
+          port: 5002
+      # 'priority' must > traefik-dashboard priority(46) to avoid 404 /api/v1/settings
+      priority: 100
+  tls: {}
+

@@ -14,6 +14,12 @@ if ! [[ "$KUBECONFIG" =~ "treboul" ]]; then
   exit 1
 fi
 
+EXTERNAL_IP=${EXTERNAL_IP:-$1}
+if [[ -z $EXTERNAL_IP ]]; then
+  echo "Please set EXTERNAL_IP"
+  exit 1
+fi
+
 install-traefik-crds () {
   # Install Traefik Resource Definitions:
   kubectl apply -f "$TRAEFIK_DIR"/kubernetes-crd-definition-v1.yml
@@ -36,9 +42,9 @@ install-traefik () {
 
 install-traefik-customize () {
   echo
-  kubectl apply -f "${REGISTRY_DIR}"/ingressroute.yaml
+  kubectl apply -f "${REGISTRY_DIR}/$EXTERNAL_IP"/ingressroute.yaml
   echo
-  kubectl apply -f "${HELMREPO_DIR}"/ingressroute.yaml
+  kubectl apply -f "${HELMREPO_DIR}/$EXTERNAL_IP"/ingressroute.yaml
 }
 
 install-traefik-crds

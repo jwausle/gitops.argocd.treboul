@@ -4,10 +4,15 @@ K3S_IMAGE="rancher/k3s:v1.31.1-k3s1"
 K3S_IMAGE="rancher/k3s:v1.29.9-k3s1"
 
 CONTAINER_NAME="k3s"
-
 if docker stats --no-stream $CONTAINER_NAME; then
   echo "Cluster $CONTAINER_NAME is already running"
   exit 0
+fi
+
+EXTERNAL_IP=${EXTERNAL_IP:-$1}
+if [[ -z $EXTERNAL_IP ]]; then
+  echo "Please set EXTERNAL_IP"
+  exit 1
 fi
 
 SCRIPT_DIR=$(dirname "$0")
@@ -37,7 +42,7 @@ sudo docker run \
   -e K3S_KUBECONFIG_MODE=666 \
   -v "$SCRIPT_PATH"/.k3s:/output \
   -v "$SCRIPT_PATH"/.k3s-pv:/var/lib/rancher/k3s/storage \
-  -v "$SCRIPT_PATH"/docker-volume-k3s:/etc/rancher/k3s \
+  -v "$SCRIPT_PATH"/docker-volume-k3s/"$EXTERNAL_IP":/etc/rancher/k3s \
   --privileged "$K3S_IMAGE" \
   server --cluster-init --disable=traefik
 
