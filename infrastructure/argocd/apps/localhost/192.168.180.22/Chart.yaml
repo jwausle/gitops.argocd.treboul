@@ -1,0 +1,4 @@
+apiVersion: v1
+description: "Deployment wrapper for traefik"
+name: "apps"
+version: 1.0.0

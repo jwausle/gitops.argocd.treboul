@@ -14,7 +14,7 @@ to host and maintain domain ligidi.africa ([link](https://ligidi.africa)).
 
 Sample service installation maintained by argocd.
 
-## Domain 'argocd.ligidi.africa'
+## Sub-domain 'argocd.ligidi.africa'
 
 (C)ontinous (D)eployment installation Argo-CD([link](https://argo-cd.readthedocs.io/en/stable/))
 to maintain the `ligidi.africa` services as applications.
@@ -22,14 +22,14 @@ to maintain the `ligidi.africa` services as applications.
 * user: admin
 * password: **** (hint: equal username)
 
-## Domain 'docker.ligidi.africa'
+## Sub-domain 'docker.ligidi.africa'
 
 Self-hosted docker registry to share service images to run them in the cluster.
 
 * user: admin
 * password: **** (hint: equal username)
 
-## Domain 'helm.ligidi.africa'
+## Sub-domain 'helm.ligidi.africa'
 
 > GET https://helm.ligidi.africa/charts # has no access permission 
 
