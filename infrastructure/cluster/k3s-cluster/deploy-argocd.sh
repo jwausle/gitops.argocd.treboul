@@ -21,6 +21,12 @@ if [ ! -d "$ARGOCD_RELEASE_CRDS_DIR" ]; then
   exit 2
 fi
 
+EXTERNAL_IP=${EXTERNAL_IP:-$1}
+if [[ -z $EXTERNAL_IP ]]; then
+  echo "Please set EXTERNAL_IP"
+  exit 1
+fi
+
 HELMCHART_ONLY=false
 if [[ "$*" =~ "--helm-only" ]]; then
   HELMCHART_ONLY=true
@@ -49,15 +55,78 @@ install-argocd-crds() {
   kubectl delete namespace $ARGOCD_RELEASE_NAMESPACE
 }
 
+install-argocd-crds-offline() {
+  kubectl create namespace $ARGOCD_RELEASE_NAMESPACE
+  kubectl apply -k "$ARGOCD_RELEASE_CRDS_DIR-offline"
+}
+
+install-argocd-apps() {
+  local appsPath="localhost/$EXTERNAL_IP"
+
+  if [ "$EXTERNAL_IP" == "45.132.246.226" ]; then
+    appsPath="ligidi.africa"
+  fi
+
+  TMP_FILE=$(mktemp -t mips-postgres-XXX)
+  cat <<EOF > "$TMP_FILE"
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: apps
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: ligidi
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: infrastructure/argocd/apps/$appsPath
+    repoURL: https://github.com/jwausle/gitops.argocd.treboul.git
+    targetRevision: main
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+    automated:
+      prune: true
+EOF
+  kubectl apply -f "$TMP_FILE" --namespace $ARGOCD_RELEASE_NAMESPACE
+}
+
+wait-until-argocd-is-ready() {
+  timeout=300
+  index=0
+
+  echo "Waiting until $timeout sec if argocd is ready"
+  until kubectl get pods -A | grep argocd-application-controller | grep Running | grep "1/1" || [ $index -eq $timeout ];
+  do
+    index=$((index+1))
+    echo -n "."
+    sleep 1;
+  done
+  if [ $index -eq $timeout ]; then
+    echo
+    echo "Argocd is not ready after $timeout seconds"
+    exit 2
+  else
+    echo
+    echo "Argocd is ready"
+  fi
+}
+
 if [ "$HELMCHART_ONLY" = true ]; then
   install-argocd-helm
 else
   # Install ArgoCD crds
-  install-argocd-crds
+  install-argocd-crds-offline
   # Install ArgoCD
   install-argocd-helm
+
   echo
+  wait-until-argocd-is-ready
   # Customize ArgoCD route `argocd.treboul.localhost`
-  kubectl apply -f "$ARGOCD_DIR"/ingressroute.yaml --namespace $ARGOCD_RELEASE_NAMESPACE
+  install-argocd-apps
 fi
 
