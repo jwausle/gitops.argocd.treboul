@@ -5,6 +5,7 @@ ARGOCD_DIR="$SCRIPT_DIR"/argocd
 ARGOCD_REPO="https://argoproj.github.io/argo-helm"
 ARGOCD_VERSION="7.6.12"
 ARGOCD_APP_VERSION="2.12.6" # Should in sync with `Chart.yaml$.appVersion`
+ARGOCD_APP_REPO=https://github.com/treboulit/kubernetes-environment-concept.git
 
 # There are some hardcoded drawbacks in used argocd/**/*.yaml files regarding namespace
 ARGOCD_RELEASE_NAME="argocd"
@@ -83,7 +84,7 @@ spec:
   project: default
   source:
     path: infrastructure/argocd/apps/$appsPath
-    repoURL: https://github.com/jwausle/gitops.argocd.treboul.git
+    repoURL: $ARGOCD_APP_REPO
     targetRevision: main
   syncPolicy:
     syncOptions:
