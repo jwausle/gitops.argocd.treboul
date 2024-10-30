@@ -12,7 +12,7 @@ spec:
   project: default
   source:
     path: infrastructure/argocd/docker-registry/docker.ligidi.africa
-    repoURL: https://github.com/jwausle/gitops.argocd.treboul.git
+    repoURL: https://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@github.com/treboulit/kubernetes-environment-concept.git
     targetRevision: main
   syncPolicy:
     syncOptions:

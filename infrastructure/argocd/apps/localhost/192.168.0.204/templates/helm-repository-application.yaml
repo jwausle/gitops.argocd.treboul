@@ -12,7 +12,7 @@ spec:
   project: default
   source:
     path: infrastructure/argocd/helm-repository/helm.localhost/{{ .Values.localhost.ip }}
-    repoURL: https://github.com/treboulit/kubernetes-environment-concept.git
+    repoURL: https://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@github.com/treboulit/kubernetes-environment-concept.git
     targetRevision: main
   syncPolicy:
     syncOptions:
