@@ -1,0 +1,9 @@
+apiVersion: v1
+description: "Deployment wrapper for traefik"
+name: "traefik-app"
+version: 32.1.1
+
+dependencies:
+  - name: "traefik"
+    version: "32.1.1"
+    repository: "https://traefik.github.io/charts/"

@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: whoami
+  name: helm-repository
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -11,7 +11,7 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: infrastructure/argocd/whoami
+    path: infrastructure/argocd/helm-repository/helm.localhost/{{ .Values.localhost.ip }}
     repoURL: https://github.com/jwausle/gitops.argocd.treboul.git
     targetRevision: main
   syncPolicy:

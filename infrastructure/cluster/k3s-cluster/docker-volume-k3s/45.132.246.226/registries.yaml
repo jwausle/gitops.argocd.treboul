@@ -1,0 +1,9 @@
+mirrors:
+  docker.ligidi.africa:
+    endpoint:
+      - "http://45.132.246.226:5001"
+configs:
+  45.132.246.226:5001:
+    auth:
+      username: admin
+      password: admin

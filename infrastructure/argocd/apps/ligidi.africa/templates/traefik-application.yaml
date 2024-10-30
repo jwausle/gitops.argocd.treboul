@@ -1,17 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: whoami
+  name: traefik
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
-    namespace: {{ .Values.namespace }}
+    namespace: traefik
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: infrastructure/argocd/whoami
+    path: infrastructure/argocd/traefik/ligidi.africa
     repoURL: https://github.com/jwausle/gitops.argocd.treboul.git
     targetRevision: main
   syncPolicy:

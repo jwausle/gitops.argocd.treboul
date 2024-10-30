@@ -11,7 +11,7 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: infrastructure/argocd/traefik
+    path: infrastructure/argocd/traefik/localhost
     repoURL: https://github.com/jwausle/gitops.argocd.treboul.git
     targetRevision: main
   syncPolicy:
