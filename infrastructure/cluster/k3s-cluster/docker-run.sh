@@ -31,6 +31,7 @@ trap breakup INT
 sudo docker run \
   -d \
   --rm \
+  --net=host \
   --name $CONTAINER_NAME \
   --tmpfs /run \
   --tmpfs /var/run \

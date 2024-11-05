@@ -12,7 +12,7 @@ ARGOCD_RELEASE_NAME="argocd"
 ARGOCD_RELEASE_NAMESPACE="argocd"
 ARGOCD_RELEASE_CRDS_DIR="$ARGOCD_DIR/argocd-$ARGOCD_APP_VERSION-crds"
 
-if ! [[ "$KUBECONFIG" =~ "treboul" ]]; then
+if ! [[ "$KUBECONFIG" =~ "treboul" ]] && ! [[ "$*" =~ "--skip-config-check" ]]; then
   echo "KUBECONFIG is not in directory of /treboul/ - '$KUBECONFIG'"
   exit 1
 fi
