@@ -1,3 +1,11 @@
+argocd:
+  namespace: argocd
+
+cert-manager:
+  # 'enabled: true' installation of cert-manager
+  #  - it's required for the 'tls.letsEncrypt.enabled: true' option to work
+  enabled: true
+
 traefik:
   ingressClass:
     enabled: true
@@ -44,5 +52,23 @@ traefik:
         basicAuth:
           secret: traefik-dashboard-auth-secret
 
-argocd:
-  namespace: argocd
+tls:
+  # Enables the creation of a Traefik TLSStore that uses the specified secret
+  # as its default certificate. As a result, all routes should be secured.
+  enabled: true
+  # The name of the secret that holds the TLS cert and key in PEM format. If
+  # letsEncrypt is disabled but tls is enabled you should make sure that the
+  # secret exists prior to installing this helmchart release
+  secretName: tls-store
+  letsEncrypt:
+    # Enables the creation of a cluster issuer and certificate request to obtain
+    # an officiallz signed certificate from Let's Encrypt. Requires that
+    # cert-manager is enabled or installed as well.
+    enabled: false
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: winter@jwausle.de
+    domains:
+      - ligidi.africa
+      - argocd.ligidi.africa
+      - docker.ligidi.africa
+      - helm.ligidi.africa

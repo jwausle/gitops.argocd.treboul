@@ -1,0 +1,16 @@
+{{- if .Values.tls.enabled }}
+apiVersion: traefik.io/v1alpha1
+kind: TLSStore
+metadata:
+  name: default
+  annotations:
+    helm.sh/hook: "post-install,post-upgrade"
+  labels:
+    app.kubernetes.io/name: {{ template "traefik-app.name" . }}
+    helm.sh/chart: {{ template "traefik-app.chart" . }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  defaultCertificate:
+    secretName:  {{ .Values.tls.secretName }}
+{{- end }}

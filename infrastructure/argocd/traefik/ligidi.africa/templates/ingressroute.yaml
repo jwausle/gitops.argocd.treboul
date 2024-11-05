@@ -6,7 +6,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`argocd.localhost`)
+    - match: Host(`argocd.ligidi.africa`)
       kind: Rule
       services:
         - name: argocd-server

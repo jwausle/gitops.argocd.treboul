@@ -1,0 +1,15 @@
+{{- if and .Values.tls.enabled .Values.tls.letsEncrypt.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ template "traefik-app.fullname" . }}-certificate
+spec:
+  dnsNames:
+    {{- range .Values.tls.letsEncrypt.domains }}
+    - {{ . }}
+    {{- end }}
+  issuerRef:
+    kind: ClusterIssuer
+    name: {{ template "traefik-app.fullname" . }}-letsencrypt
+  secretName: {{ .Values.tls.secretName }}
+{{- end }}

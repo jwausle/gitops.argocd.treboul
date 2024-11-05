@@ -1,0 +1,16 @@
+{{- if and .Values.tls.enabled .Values.tls.letsEncrypt.enabled }}
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ template "traefik-app.fullname" . }}-letsencrypt
+spec:
+  acme:
+    email: {{ .Values.tls.letsEncrypt.email }}
+    privateKeySecretRef:
+      name: {{ template "traefik-app.fullname" . }}-private-key
+    server: {{ .Values.tls.letsEncrypt.server }}
+    solvers:
+      - http01:
+          ingress:
+            class: ""
+{{- end }}

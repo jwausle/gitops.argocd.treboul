@@ -7,3 +7,7 @@ dependencies:
   - name: "traefik"
     version: "32.1.1"
     repository: "https://traefik.github.io/charts/"
+  - name: "cert-manager"
+    condition: "cert-manager.enabled"
+    version: "v1.13.0"
+    repository: "https://charts.jetstack.io"
