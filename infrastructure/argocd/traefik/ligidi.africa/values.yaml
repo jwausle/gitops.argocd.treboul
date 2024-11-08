@@ -5,6 +5,7 @@ cert-manager:
   # 'enabled: true' installation of cert-manager
   #  - it's required for the 'tls.letsEncrypt.enabled: true' option to work
   enabled: true
+  installCRDs: true
 
 traefik:
   ingressClass:
