@@ -108,11 +108,15 @@ flowchart LR
     subgraph "Continuous Deployment (CD)"
         direction LR
         Deploy --> Helmchart
+        subgraph Github 
+            Deploy
+        end
         subgraph Helm-Repository
             Helmchart
         end
-        subgraph Cluster
+        subgraph "Kubernetes Cluster"
             Argocd --> Helmchart
+            Argocd --> Helmchart-Release
         end
     end
     
