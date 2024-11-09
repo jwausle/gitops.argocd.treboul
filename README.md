@@ -119,6 +119,19 @@ flowchart LR
             Argocd --> Helmchart-Release
         end
     end
-    
-    
 ```
+
+### The service development livecycle is:
+
+1. Developer implement the feature in the service repository (example - [./service](./service))
+2. The CI (Github-Action) build and deploy the service as image to the docker registry ([https://docker.ligidi.africa](https://docker.ligidi.africa)) on any `main` branch push
+3. (Optional) Update the helmchart if necessary ([./helmcharts](./helmcharts))
+4. (Optional) Deploy the helmchart to the helm repository ([https://helm.ligidi.africa](https://helm.ligidi.africa))
+5. Integrate the new Image in the argocd application ([infrastructure/argocd/app]) to deploy the service in the cluster
+6. The CD (Github-Action) tag the argocd application
+7. ArgoCD sync the application changes into the cluster
+
+The general development branch is `main` and the production deployment tag is `prod`. 
+The CI/CD process follows the GitFlow pattern([link](https://docs.github.com/en/get-started/using-github/github-flow)).
+
+All ArgoCD applications are helmcharts that are deployed to the cluster.

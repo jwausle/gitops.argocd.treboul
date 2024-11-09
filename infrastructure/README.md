@@ -1,17 +1,36 @@
 # Infrastructure
 
-## ArgoCD 'argocd' appication
+## ArgoCD 'argocd' application
+
+Continuous Deployment (CD) of the helm charts to the 'k3s-cluster' using ArgoCD.
+
+```mermaid
+flowchart LR
+    subgraph "Continuous Deployment (CD)"
+        direction LR
+        Deploy --> Helmchart
+        subgraph Github 
+            Deploy
+        end
+        subgraph Helm-Repository
+            Helmchart
+        end
+        subgraph "Kubernetes Cluster"
+            Argocd --> Helmchart
+            Argocd --> Helmchart-Release
+        end
+    end
+```
+
+ArgoCD continuously pull the changes of the helmcharts 
+to sync the ArgoCD applications([infrastructure/argocd/app](./argocd/app)) into the cluster. 
 
 ## Cluster 'cluster' setup
 
-### Setup 'k3s-cluster' as docker container
+1. Setup 'k3s-cluster' as docker container
+2. Setup 'docker-registry' as docker container
+3. Setup 'helm-repository' as docker container
 
-Lightweight kubernetes cluster `k3s` from Rancher is used to host a cluster.
+## Debian 'host' setup
 
-### Setup 'docker-registry' as docker container
-
-Official docker registry image is used to setup a local docker registry.
-
-### Setup 'helm-repository' as docker container
-
-Community helm repository `Chartmuseum` is used to setup a local helm repository.
+Initial setup of the debian host to run the cluster and the docker containers.

@@ -1,0 +1,41 @@
+name: Build Helm Chart
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'helmcharts/spring-boot-app/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'helmcharts/spring-boot-app/**'
+
+jobs:
+  build-helm:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.14.0
+
+      - name: Lint Helm Chart
+        run: helm lint ./helmcharts/spring-boot-app
+
+      - name: Lint Helm Chart
+        run: helm template ./helmcharts/spring-boot-app
+
+#      - name: Package Helm Chart
+#        run: helm package ./helm-charts/your-chart-name --destination ./helm-charts/packages
+#
+#      - name: Upload Helm Chart as Artifact
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: helm-chart
+#          path: ./helm-charts/packages/*.tgz  # Path to the packaged chart
