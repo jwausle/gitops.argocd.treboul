@@ -12,7 +12,7 @@ spec:
   project: default
   source:
     path: infrastructure/argocd/docker-registry/docker.localhost/{{ .Values.localhost.ip }}
-    repoURL: https://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@github.com/treboulit/kubernetes-environment-concept.git
+    repoURL: https://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@github.com/treboulit/kubernetes-environment-concept.git
     targetRevision: main
   syncPolicy:
     syncOptions:

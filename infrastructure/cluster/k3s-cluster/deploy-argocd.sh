@@ -5,7 +5,8 @@ ARGOCD_DIR="$SCRIPT_DIR"/argocd
 ARGOCD_REPO="https://argoproj.github.io/argo-helm"
 ARGOCD_VERSION="7.6.12"
 ARGOCD_APP_VERSION="2.12.6" # Should in sync with `Chart.yaml$.appVersion`
-ARGOCD_APP_REPO="https://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@github.com/treboulit/kubernetes-environment-concept.git"
+ARGOCD_APP_REPO_TOKEN="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"
+ARGOCD_APP_REPO="https://$ARGOCD_APP_REPO_TOKEN@github.com/treboulit/kubernetes-environment-concept.git"
 
 # There are some hardcoded drawbacks in used argocd/**/*.yaml files regarding namespace
 ARGOCD_RELEASE_NAME="argocd"
@@ -31,6 +32,11 @@ fi
 HELMCHART_ONLY=false
 if [[ "$*" =~ "--helm-only" ]]; then
   HELMCHART_ONLY=true
+fi
+
+APPLICATION_ONLY=false
+if [[ "$*" =~ "--app-only" ]]; then
+  APPLICATION_ONLY=true
 fi
 
 install-argocd-helm() {
@@ -117,8 +123,10 @@ wait-until-argocd-is-ready() {
   fi
 }
 
-if [ "$HELMCHART_ONLY" = true ]; then
+if [ "$HELMCHART_ONLY" = "true" ]; then
   install-argocd-helm
+elif [ "$APPLICATION_ONLY" = "true" ]; then
+  install-argocd-apps
 else
   # Install ArgoCD crds
   install-argocd-crds-offline
