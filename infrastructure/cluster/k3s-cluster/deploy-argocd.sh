@@ -6,7 +6,7 @@ ARGOCD_REPO="https://argoproj.github.io/argo-helm"
 ARGOCD_VERSION="7.6.12"
 ARGOCD_APP_VERSION="2.12.6" # Should in sync with `Chart.yaml$.appVersion`
 ARGOCD_APP_REPO_TOKEN="ghp_" # Split token into two parts to avoid github security issue
-ARGOCD_APP_REPO_TOKEN+="A9UmNFEg9e37LyC5bpGS5wrZnkiASG1dOQ6v"
+ARGOCD_APP_REPO_TOKEN+="YcukYDwxbW6Ja4i58hXGnobh26bh670GvcE2"
 ARGOCD_APP_REPO="https://github.com/treboulit/kubernetes-environment-concept.git"
 
 # There are some hardcoded drawbacks in used argocd/**/*.yaml files regarding namespace
