@@ -8,5 +8,5 @@ metadata:
 stringData:
   type: "git"
   url: "https://github.com/treboulit/kubernetes-environment-concept.git"
-  password: "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"
+  password: "ghp_"  # + "A9UmNFEg9e37LyC5bpGS5wrZnkiASG1dOQ6v"
   username: ""

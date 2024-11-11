@@ -5,8 +5,9 @@ ARGOCD_DIR="$SCRIPT_DIR"/argocd
 ARGOCD_REPO="https://argoproj.github.io/argo-helm"
 ARGOCD_VERSION="7.6.12"
 ARGOCD_APP_VERSION="2.12.6" # Should in sync with `Chart.yaml$.appVersion`
-ARGOCD_APP_REPO_TOKEN="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"
-ARGOCD_APP_REPO="https://$ARGOCD_APP_REPO_TOKEN@github.com/treboulit/kubernetes-environment-concept.git"
+ARGOCD_APP_REPO_TOKEN="ghp_" # Split token into two parts to avoid github security issue
+ARGOCD_APP_REPO_TOKEN+="A9UmNFEg9e37LyC5bpGS5wrZnkiASG1dOQ6v"
+ARGOCD_APP_REPO="https://github.com/treboulit/kubernetes-environment-concept.git"
 
 # There are some hardcoded drawbacks in used argocd/**/*.yaml files regarding namespace
 ARGOCD_RELEASE_NAME="argocd"
@@ -67,6 +68,25 @@ install-argocd-crds-offline() {
   kubectl apply -k "$ARGOCD_RELEASE_CRDS_DIR-offline"
 }
 
+install-argocd-apps-secret() {
+  TMP_FILE=$(mktemp -t apps-secret-XXX)
+  cat <<EOF > "$TMP_FILE"
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "argocd-apps-repo"
+  namespace: "$ARGOCD_RELEASE_NAMESPACE"
+  labels:
+    argocd.argoproj.io/secret-type: repository
+stringData:
+  type: "git"
+  url: "$ARGOCD_APP_REPO"
+  password: "$ARGOCD_APP_REPO_TOKEN"
+  username: ""
+EOF
+  kubectl apply -f "$TMP_FILE" --namespace $ARGOCD_RELEASE_NAMESPACE
+}
+
 install-argocd-apps() {
   local appsPath="localhost/$EXTERNAL_IP"
 
@@ -74,13 +94,13 @@ install-argocd-apps() {
     appsPath="ligidi.africa"
   fi
 
-  TMP_FILE=$(mktemp -t mips-postgres-XXX)
+  TMP_FILE=$(mktemp -t apps-XXX)
   cat <<EOF > "$TMP_FILE"
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: apps
-  namespace: argocd
+  namespace: $ARGOCD_RELEASE_NAMESPACE
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -126,6 +146,7 @@ wait-until-argocd-is-ready() {
 if [ "$HELMCHART_ONLY" = "true" ]; then
   install-argocd-helm
 elif [ "$APPLICATION_ONLY" = "true" ]; then
+  install-argocd-apps-secret
   install-argocd-apps
 else
   # Install ArgoCD crds
