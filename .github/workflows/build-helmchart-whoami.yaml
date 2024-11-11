@@ -1,4 +1,4 @@
-name: Build Helm Chart
+name: Build Whoami Helm Chart
 
 on:
   push:

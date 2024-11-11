@@ -14,7 +14,7 @@ flowchart LR
     end
     Image --> Chart
     Chart --> Deploy
-    subgraph "Continuous Deployment (CD)"
+    subgraph "Continuous Deployment (CD) "
         direction LR
         Deploy --> Helmchart
         subgraph Github 

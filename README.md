@@ -85,7 +85,7 @@ Write/push user:
 3. Enhance `helm.ligidi.africa` helmcharts ([link](./helmcharts))
 4. Enhance sample service ([link](./service))
 
-The 3 subdirectories `./infrastructure`, `./helmcharts` and `./service` 
+The 3 subdirectories [./infrastructure](./infrastructure), [./helmcharts](./helmcharts) and [./service](./service) 
 should be 3 separate repositories. For the concept it's sufficient
 that the directories represent this repository.
 
@@ -121,7 +121,7 @@ flowchart LR
     end
 ```
 
-### The service development livecycle is:
+### The service development+deployment livecycle is:
 
 1. Developer implement the feature in the service repository (example - [./service](./service))
 2. The CI (Github-Action) build and deploy the service as image to the docker registry ([https://docker.ligidi.africa](https://docker.ligidi.africa)) on any `main` branch push

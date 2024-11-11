@@ -4,6 +4,17 @@
 
 Continuous Deployment (CD) of the helm charts to the 'k3s-cluster' using ArgoCD.
 
+* [argocd/apps](./argocd/apps) - All ArgoCD applications
+* [argocd/traefik](./argocd/traefik) - Traefik Helm Chart configuration
+* [argocd/dokcer-registry](./argocd/registry) - Reverse Proxy route to the Docker Registry ([https://docker.ligidi.africa](https://docker.ligidi.africa))
+* [argocd/helm-repository](./argocd/helm-repository) - Reverse Proxy route to the Helm Repository ([https://helm.ligidi.africa](https://helm.ligidi.africa))
+* [argocd/*](./argocd/) - All other referenced ArgoCD application helm charts
+
+Any ArgoCD application folder contains subfolder named by domains where they can be deployed.
+
+* `ligidi.africa` - The main domain
+* `localhost` - Local development
+
 ```mermaid
 flowchart LR
     subgraph "Continuous Deployment (CD)"

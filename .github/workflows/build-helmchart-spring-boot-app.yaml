@@ -1,4 +1,4 @@
-name: Build Helm Chart
+name: Build Spring Boot Helm Chart
 
 on:
   push:

@@ -12,7 +12,7 @@ spec:
   project: default
   source:
     path: infrastructure/argocd/traefik/localhost
-    repoURL: https://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@github.com/treboulit/kubernetes-environment-concept.git
+    repoURL: https://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@github.com/treboulit/kubernetes-environment-concept.git
     targetRevision: main
   syncPolicy:
     syncOptions:
