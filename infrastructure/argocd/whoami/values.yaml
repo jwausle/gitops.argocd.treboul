@@ -1,6 +1,6 @@
 whoami:
   podLabels:
-    hello: world
+    hello: world2
 
 test:
   name: "null"
