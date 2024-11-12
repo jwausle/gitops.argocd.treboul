@@ -105,7 +105,7 @@ flowchart LR
     end
     Image --> Chart
     Chart --> Deploy
-    subgraph "Continuous Deployment (CD)"
+    subgraph "Continuous Deployment (CD)" 
         direction LR
         Deploy --> Helmchart
         subgraph Github 
@@ -131,7 +131,43 @@ flowchart LR
 6. The CD (Github-Action) tag the argocd application
 7. ArgoCD sync the application changes into the cluster
 
-The general development branch is `main` and the production deployment tag is `prod`. 
+### Deployment sequence
+
+The general development branch is `main` and the production deployment tag is `prod`.
 The CI/CD process follows the GitFlow pattern([link](https://docs.github.com/en/get-started/using-github/github-flow)).
 
-All ArgoCD applications are helmcharts that are deployed to the cluster.
+> **All ArgoCD applications are helmcharts**
+
+```mermaid
+sequenceDiagram
+    participant Developer
+    box LightYellow Countinous Integration (CI
+    participant CI
+    participant DockerRegistry
+    participant HelmRepository
+    end
+    box LightCyan Countinous Deployment (CD)
+    participant CD
+    participant Argocd
+    participant Kubernetes
+    end
+    Developer ->> CI: (1) git push main
+    CI ->>DockerRegistry: (2) docker push
+    activate DockerRegistry
+    note right of DockerRegistry: Image:v1.0.0
+    CI ->> HelmRepository: (3,4) helm push
+    activate HelmRepository
+    note right of HelmRepository: Chart:v2.0.0
+    Developer ->> CD: (5) git push main - Integrate Image:v1.1.0, Chart:v2.0.0 into Argocd Application
+    Note right of CD: Configure<br/>next Deployment <br/>in GitRepo
+    Developer ->> CD: (6) git push prod - Move deployment tag to next deployment commit
+    Note right of CD: Move Git Tag `prod`<br/>identify deployment <br/> commit
+    loop ArgoCD sync
+    Argocd ->>CD: (7) fetch
+    activate Argocd
+    Argocd ->>Kubernetes: (7) deploy
+    deactivate Argocd
+    end
+    deactivate DockerRegistry
+    deactivate HelmRepository
+```
