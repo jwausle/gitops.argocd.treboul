@@ -68,7 +68,7 @@ tls:
     # Enables the creation of a cluster issuer and certificate request to obtain
     # an officiallz signed certificate from Let's Encrypt. Requires that
     # cert-manager is enabled or installed as well.
-    enabled: false
+    enabled: true
     server: https://acme-staging-v02.api.letsencrypt.org/directory
     email: winter@jwausle.de
     domains:
