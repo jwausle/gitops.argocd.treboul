@@ -22,6 +22,9 @@ traefik:
     web:
       redirectTo:
         port: websecure
+  
+  service:
+    ipFamilyPolicy: "PreferDualStack"
 
   # Create an IngressRoute for the dashboard
   ingressRoute:

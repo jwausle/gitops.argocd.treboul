@@ -45,7 +45,8 @@ sudo docker run \
   -v "$SCRIPT_PATH"/.k3s-pv:/var/lib/rancher/k3s/storage \
   -v "$SCRIPT_PATH"/docker-volume-k3s/"$EXTERNAL_IP":/etc/rancher/k3s \
   --privileged "$K3S_IMAGE" \
-  server --cluster-init --disable=traefik
+  server --cluster-init --disable=traefik \
+  '--cluster-cidr=10.42.0.0/16,2001:cafe:42::/56' '--service-cidr=10.43.0.0/16,2001:cafe:43::/112'
 
 sleep 1
 

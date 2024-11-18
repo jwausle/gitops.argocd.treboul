@@ -156,7 +156,8 @@ else
 
   echo
   wait-until-argocd-is-ready
-  # Customize ArgoCD route `argocd.treboul.localhost`
+  # Install ArgoCD apps
+  install-argocd-apps-secret
   install-argocd-apps
 fi
 

@@ -42,3 +42,4 @@ treboul-route/
 
 k3s.yaml
 kubeconfig.yaml
+.k3s-pv/
