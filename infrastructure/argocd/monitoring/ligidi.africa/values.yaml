@@ -53,7 +53,7 @@ promtail:
     # @default -- See `values.yaml`
     # @doc -- https://akyriako.medium.com/kubernetes-logging-with-grafana-loki-promtail-in-under-10-minutes-d2847d526f9e
     clients:
-      - url: http://loki-loki-distributed-gateway.monitoring.svc.cluster.local/loki/api/v1/push
+      - url: http://monitoring-loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push
 
 prometheus:
   enabled: true
@@ -82,7 +82,7 @@ prometheus:
         type: loki
         isDefault: false
         access: proxy
-        url: "http://loki-loki-distributed-querier.monitoring.svc.cluster.local:3100"
+        url: "http://monitoring-loki-querier.monitoring.svc.cluster.local:3100"
   prometheus:
     prometheusSpec:
       logLevel: "debug"
