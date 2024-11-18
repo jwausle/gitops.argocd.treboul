@@ -1,7 +1,7 @@
 apiVersion: v1
 description: "Deployment wrapper for traefik"
-name: "traefik-app"
-version: 32.1.1
+name: "monitoring-app"
+version: 1.0.0
 
 dependencies:
   - name: "loki-distributed"
