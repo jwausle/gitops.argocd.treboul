@@ -46,7 +46,7 @@ loki:
       storageClass: "local-path"
 
 promtail:
-  enabled: false
+  enabled: true
   config:
     # -- The config of clients of the Promtail server
     # Must be reference in `config.file` to configure `clients`

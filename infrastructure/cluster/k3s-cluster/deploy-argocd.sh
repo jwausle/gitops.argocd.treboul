@@ -156,6 +156,7 @@ else
 
   echo
   wait-until-argocd-is-ready
+
   # Install ArgoCD apps
   install-argocd-apps-secret
   install-argocd-apps

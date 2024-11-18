@@ -1,0 +1,7 @@
+config:
+  # -- The config of clients of the Promtail server
+  # Must be reference in `config.file` to configure `clients`
+  # @default -- See `values.yaml`
+  # @doc -- https://akyriako.medium.com/kubernetes-logging-with-grafana-loki-promtail-in-under-10-minutes-d2847d526f9e
+  clients:
+    - url: http://loki-loki-distributed-gateway.monitoring.svc.cluster.local/loki/api/v1/push

@@ -1,0 +1,33 @@
+grafana:
+  ingress:
+    enabled: true
+    path: "/grafana"
+  admin:
+    existingSecret: "grafana-admin-secret"
+  grafana.ini:
+    server:
+      domain: "ligid.africa"
+      root_url: "https://ligid.africa/grafana"
+      serve_from_sub_path: true
+    security:
+      allow_embedding: true
+      cookie_secure: false
+    auth:
+      basic:
+        enable: true
+  persistence:
+    enabled: true
+    existingClaim: prometheus-pv-claim
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      isDefault: false
+      access: proxy
+      url: http://loki-loki-distributed-querier.monitoring.svc.cluster.local:3100
+prometheus:
+  prometheusSpec:
+    logLevel: "debug"
+    externalUrl: "/prometheus/"
+    routePrefix: "/prometheus/"
+    # To enable general ServiceMonitor discovery
+    serviceMonitorSelectorNilUsesHelmValues: false

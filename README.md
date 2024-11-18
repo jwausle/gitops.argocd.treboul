@@ -136,7 +136,7 @@ flowchart LR
 The general development branch is `main` and the production deployment tag is `prod`.
 The CI/CD process follows the GitFlow pattern([link](https://docs.github.com/en/get-started/using-github/github-flow)).
 
-> **All ArgoCD applications are helmcharts**
+> **All ArgoCD applications schedule helmcharts deployments**
 
 ```mermaid
 sequenceDiagram
