@@ -56,7 +56,7 @@ promtail:
       - url: http://loki-loki-distributed-gateway.monitoring.svc.cluster.local/loki/api/v1/push
 
 prometheus:
-  enabled: false
+  enabled: true
   grafana:
     ingress:
       enabled: true
