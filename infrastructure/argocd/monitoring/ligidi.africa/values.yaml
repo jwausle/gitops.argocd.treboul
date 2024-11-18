@@ -14,7 +14,7 @@ app:
     namespace: "ligidi"
 
 loki:
-  enabled: true
+  enabled: false
   # Enabled by default
   chunksCache:
     persistence:
@@ -46,7 +46,7 @@ loki:
       storageClass: "local-path"
 
 promtail:
-  enabled: true
+  enabled: false
   config:
     # -- The config of clients of the Promtail server
     # Must be reference in `config.file` to configure `clients`
@@ -56,7 +56,7 @@ promtail:
       - url: http://monitoring-loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push
 
 prometheus:
-  enabled: true
+  enabled: false
   grafana:
     ingress:
       enabled: true
