@@ -17,6 +17,8 @@ prometheus:
   enabled: true
   crds:
     enabled: false
+  alertmanager:
+    enabled: false
   grafana:
     ingress:
       enabled: true
