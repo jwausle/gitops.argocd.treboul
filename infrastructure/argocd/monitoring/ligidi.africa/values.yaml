@@ -14,7 +14,7 @@ app:
     namespace: "ligidi"
 
 prometheus:
-  enabled: false
+  enabled: true
   grafana:
     ingress:
       enabled: true
