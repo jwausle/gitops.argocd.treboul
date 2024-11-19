@@ -1,0 +1,44 @@
+app:
+  namespace: "monitoring"
+
+loki:
+  enabled: true
+  # Enabled by default
+  chunksCache:
+    persistence:
+      # Persistence is disabled by default
+      enabled: true
+      # -- Storage class to be used.
+      # If defined, storageClassName: <storageClass>.
+      # If set to "-", storageClassName: "", which disables dynamic provisioning.
+      # If empty or set to null, no storageClassName spec is
+      # set, choosing the default provisioner (gp2 on AWS, standard on GKE, AWS, and OpenStack).
+      storageClass: "local-path"
+
+  deploymentMode: SingleBinary
+
+  loki:
+    containerSecurityContext:
+      # Solved https://github.com/grafana/helm-charts/issues/1111
+      # - grafana-error: /var/loki/chunks/fake/755005aa5e414340/MTgxMTNjOGM5MGI6MTgxMTQzNmE2NTI6M2RkYjQzYmQ=: no such file or directory
+      # - found fix: https://community.grafana.com/t/query-error-loki-reporting-to-grafana-it-cant-find-chunks/61741/2
+      readOnlyRootFilesystem: false
+
+  singleBinary:
+    persistence:
+      # -- Storage class to be used.
+      # If defined, storageClassName: <storageClass>.
+      # If set to "-", storageClassName: "", which disables dynamic provisioning.
+      # If empty or set to null, no storageClassName spec is
+      # set, choosing the default provisioner (gp2 on AWS, standard on GKE, AWS, and OpenStack).
+      storageClass: "local-path"
+
+promtail:
+  enabled: true
+  config:
+    # -- The config of clients of the Promtail server
+    # Must be reference in `config.file` to configure `clients`
+    # @default -- See `values.yaml`
+    # @doc -- https://akyriako.medium.com/kubernetes-logging-with-grafana-loki-promtail-in-under-10-minutes-d2847d526f9e
+    clients:
+      - url: http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push

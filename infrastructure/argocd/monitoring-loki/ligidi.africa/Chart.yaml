@@ -1,0 +1,15 @@
+apiVersion: v1
+description: "Deployment wrapper for traefik"
+name: "monitoring-loki-app"
+version: 1.0.0
+
+dependencies:
+  - name: "loki-distributed"
+    alias: "loki"
+    condition: "loki.enabled"
+    version: "0.79.4"
+    repository: "https://grafana.github.io/helm-charts"
+  - name: "promtail"
+    condition: "promtail.enabled"
+    version: "6.16.6"
+    repository: "https://grafana.github.io/helm-charts"
