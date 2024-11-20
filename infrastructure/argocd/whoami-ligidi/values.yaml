@@ -1,0 +1,12 @@
+whoami:
+  global:
+    imagePullSecrets:
+      - "docker-ligidi-africa-pull-secret"
+  image:
+    registry: "docker.ligidi.africa"
+    pullPolicy: "Always"
+  podLabels:
+    hello: "world"
+
+test:
+  name: "null"

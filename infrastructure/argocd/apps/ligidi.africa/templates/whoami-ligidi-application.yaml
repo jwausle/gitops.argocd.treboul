@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: whoami-ligidi
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: {{ .Values.namespace }}
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: infrastructure/argocd/whoami-ligidi
+    repoURL: https://github.com/treboulit/kubernetes-environment-concept.git
+    targetRevision: main
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+    automated:
+      prune: true
