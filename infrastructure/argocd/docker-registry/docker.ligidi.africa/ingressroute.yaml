@@ -7,8 +7,8 @@ spec:
   type: ExternalName
   externalName: 45.132.246.226
   ports:
-    - port: 5002
-      targetPort: 5002
+    - port: 5001
+      targetPort: 5001
       protocol: TCP
       name: http
 ---
@@ -25,7 +25,7 @@ spec:
       kind: Rule
       services:
         - name: docker-registry-external
-          port: 5002
+          port: 5001
       # 'priority' must > traefik-dashboard priority(46) to avoid 404 /api/v1/settings
       priority: 100
   tls: {}
