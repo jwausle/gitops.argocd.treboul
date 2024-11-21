@@ -19,4 +19,4 @@ if ! helm package $SCRIPT_DIR/$HELMCHART -d $TMP_DIR ; then
 fi
 
 HELMCHART_FILE=$(find $TMP_DIR | grep .tgz)
-curl -k --data-binary "@$HELMCHART_FILE"  https://helm.treboul.localhost/api/charts
+curl -k --data-binary "@$HELMCHART_FILE"  https://admin:admin@helm.ligidi.africa/api/charts

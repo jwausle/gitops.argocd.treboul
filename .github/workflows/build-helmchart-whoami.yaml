@@ -13,29 +13,56 @@ on:
       - 'helmcharts/whoami/**'
 
 jobs:
-  build-helm:
+  build-chart:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Install Helm
-        uses: azure/setup-helm@v3
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
         with:
-          version: v3.14.0
+          version: v3.12.0
 
       - name: Lint Helm Chart
-        run: helm lint ./helmcharts/whoami
+        run: |
+          helm lint helmcharts/whoami
 
-      - name: Lint Helm Chart
-        run: helm template ./helmcharts/whoami
+      - name: Package Helm Chart
+        env:
+          HELM_CHART_PATH: ./helmcharts/whoami
+        run: |
+          VERSION=$(grep version $HELM_CHART_PATH/Chart.yaml | sed 's/.*: *//g')
+          APP_VERSION=$(grep appVersion $HELM_CHART_PATH/Chart.yaml | sed 's/.*: *//g')
+          helm package $HELM_CHART_PATH \
+            --version=$VERSION \
+            --app-version=$APP_VERSION
 
-#      - name: Package Helm Chart
-#        run: helm package ./helm-charts/your-chart-name --destination ./helm-charts/packages
-#
-#      - name: Upload Helm Chart as Artifact
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: helm-chart
-#          path: ./helm-charts/packages/*.tgz  # Path to the packaged chart
+      - name: Upload Helm Chart Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: helm-chart
+          path: "*.tgz"
+
+  push-chart:
+    needs: build-chart
+    if: (github.event_name == 'workflow_dispatch' && inputs.push_chart == true)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Helm Chart
+        uses: actions/download-artifact@v4
+        with:
+          name: helm-chart
+          path: "/tmp/helm-chart"
+
+      - name: Push to ChartMuseum
+        env:
+          REPO_URL: helm.ligidi.africa
+          REPO_USER: admin
+          REPO_PASS: admin
+        run: |
+          CHART_FILE=$(find /tmp/helm-chart -name "*.tgz")
+          curl -u "$REPO_USER:$REPO_PASS" \
+              -k --data-binary "@$CHART_FILE" \
+              "$REPO_URL/api/charts"
