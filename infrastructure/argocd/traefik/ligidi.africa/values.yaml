@@ -69,7 +69,8 @@ tls:
     # an officiallz signed certificate from Let's Encrypt. Requires that
     # cert-manager is enabled or installed as well.
     enabled: true
-    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    #server: https://acme-staging-v02.api.letsencrypt.org/directory
+    server: https://acme-v02.api.letsencrypt.org/directory
     email: winter@jwausle.de
     domains:
       - ligidi.africa
