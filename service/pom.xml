@@ -94,6 +94,12 @@
 						<artifactId>kotlin-maven-allopen</artifactId>
 						<version>${kotlin.version}</version>
 					</dependency>
+					<dependency>
+						<!-- Hide intellij warning - https://stackoverflow.com/questions/32038177/kotlin-with-jpa-default-constructor-hell -->
+						<groupId>org.jetbrains.kotlin</groupId>
+						<artifactId>kotlin-maven-noarg</artifactId>
+						<version>${kotlin.version}</version>
+					</dependency>
 				</dependencies>
 			</plugin>
 		</plugins>

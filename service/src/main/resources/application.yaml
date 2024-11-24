@@ -30,6 +30,14 @@ management:
     recording:
       include: "REQUEST_HEADERS,RESPONSE_HEADERS,TIME_TAKEN,PRINCIPAL"
 
+sample:
+  config:
+    key: "sample-config"
+    value: "config"
+  secret:
+    key: "sample-secret"
+    value: "secret"
+
 spring:
   application:
     name: sample
