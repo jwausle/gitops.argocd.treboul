@@ -15,6 +15,7 @@ env:
   HELMCHART_USERNAME: admin
   HELMCHART_PASSWORD: admin
   HELMCHART_PATH: helmcharts/whoami
+  GIT_TAG_PREFIX: cw
 
 jobs:
   build-chart:
@@ -93,8 +94,9 @@ jobs:
           git config user.email "github-actions@github.com"
 
       - name: Create and Push Tag
+        env:
+          TAG_NAME: ${{ env.GIT_TAG_PREFIX }}${{ needs.build-chart.outputs.chart_version }}
         run: |
-          TAG_NAME="w${{ needs.build-chart.outputs.chart_version }}"
           git tag -d "$TAG_NAME" 2>/dev/null || true
           git push --delete origin "$TAG_NAME" 2>/dev/null || true
           git tag -a "$TAG_NAME" -m "Release version ${{ needs.build-chart.outputs.chart_version }} (updated on $(date -u '+%Y-%m-%d %H:%M:%S UTC'))"

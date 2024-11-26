@@ -15,6 +15,7 @@ fi
 
 if ! docker volume ls | grep -q $CONTAINER_VOLUME; then
   docker volume create $CONTAINER_VOLUME
+  chmod -R 777 $(docker volume inspect $CONTAINER_VOLUME --format '{{ .Mountpoint }}')
 fi
 
 docker run --rm -d \

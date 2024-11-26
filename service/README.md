@@ -19,3 +19,6 @@ java -jar target/spring.sample.jar
 ```
 docker build -t docker.ligidi.africa/spring.sample:latest .
 ```
+
+* github-action: [build-service](https://github.com/treboulit/kubernetes-environment-concept/blob/main/.github/workflows/build-service.yaml)
+* git-tag: `vX.Y.Z` (e.g. [v1.0.0](https://github.com/treboulit/kubernetes-environment-concept/tree/v1.0.0))

@@ -1,7 +1,7 @@
 FROM eclipse-temurin:17-jre-alpine
 
 RUN mkdir app
-COPY target/treboul.spring.sample.jar app/treboul.spring.sample.jar
+COPY target/spring.sample.jar app/spring.sample.jar
 EXPOSE 8080
 
 ENTRYPOINT [ \
@@ -11,5 +11,5 @@ ENTRYPOINT [ \
   # show inital memory allocation on startup \
   "-XshowSettings:vm", \
   "-jar", \
-  "app/treboul.spring.sample.jar" \
+  "app/spring.sample.jar" \
 ]
