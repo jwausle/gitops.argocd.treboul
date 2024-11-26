@@ -1,12 +1,11 @@
-whoami:
-  global:
-    imagePullSecrets:
-      - "docker-ligidi-africa-pull-secret"
+spring-boot-app:
   image:
-    registry: "docker.ligidi.africa"
-    pullPolicy: "Always"
-  podLabels:
-    hello: "world"
+    repository: "docker.ligidi.africa/spring.sample"
+    tag: "1.0.0"
 
-test:
-  name: "null"
+  imagePullSecrets:
+    - name: "docker-ligidi-africa-pull-secret"
+
+  ingressroute:
+    enabled: true
+    path: "/api/spring-sample"
