@@ -7,35 +7,96 @@ on:
     paths:
       - 'helmcharts/spring-boot-app/**'
   pull_request:
-    branches:
-      - main
     paths:
       - 'helmcharts/spring-boot-app/**'
 
+env:
+  HELMCHART_REPOSITORY: helm.ligidi.africa
+  HELMCHART_USERNAME: admin
+  HELMCHART_PASSWORD: admin
+  HELMCHART_PATH: helmcharts/spring-boot-app
+
 jobs:
-  build-helm:
+  build-chart:
     runs-on: ubuntu-latest
+    outputs:
+      chart_version: ${{ steps.package-chart.outputs.chart_version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.12.0
+
+      - name: Lint Helm Chart
+        run: |
+          helm lint ${{ env.HELMCHART_PATH }}
+
+      - name: Package Helm Chart
+        id: package-chart
+        env:
+          HELM_CHART_PATH: ${{ env.HELMCHART_PATH }}
+        run: |
+          VERSION=$(grep 'version: ' $HELM_CHART_PATH/Chart.yaml | sed 's/.*: *//g')
+          APP_VERSION=$(grep 'appVersion: ' $HELM_CHART_PATH/Chart.yaml | sed 's/.*: *//g')
+          helm package $HELM_CHART_PATH \
+            --version=$VERSION \
+            --app-version=$APP_VERSION
+          echo "chart_version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Upload Helm Chart Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: helm-chart
+          path: "*.tgz"
+
+  push-chart:
+    needs: build-chart
+    if: github.ref == 'refs/heads/main' && success()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Helm Chart
+        uses: actions/download-artifact@v4
+        with:
+          name: helm-chart
+          path: "/tmp/helm-chart"
+
+      - name: Push to ChartMuseum
+        env:
+          REPO_URL: ${{ env.HELMCHART_REPOSITORY }}
+          REPO_USER: ${{ env.HELMCHART_USERNAME }}
+          REPO_PASS: ${{ env.HELMCHART_PASSWORD }}
+        run: |
+          CHART_FILE=$(find /tmp/helm-chart -name "*.tgz")
+          curl -u "$REPO_USER:$REPO_PASS" \
+              -k --data-binary "@$CHART_FILE" \
+              "https://$REPO_URL/api/charts"
+
+
+  create-git-tag:
+    needs: [ build-chart, push-chart ]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && success()
 
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
-
-      - name: Install Helm
-        uses: azure/setup-helm@v3
+      - uses: actions/checkout@v3
         with:
-          version: v3.14.0
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Lint Helm Chart
-        run: helm lint ./helmcharts/spring-boot-app
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@github.com"
 
-      - name: Lint Helm Chart
-        run: helm template ./helmcharts/spring-boot-app
-
-#      - name: Package Helm Chart
-#        run: helm package ./helm-charts/your-chart-name --destination ./helm-charts/packages
-#
-#      - name: Upload Helm Chart as Artifact
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: helm-chart
-#          path: ./helm-charts/packages/*.tgz  # Path to the packaged chart
+      - name: Create and Push Tag
+        run: |
+          TAG_NAME="s${{ needs.build-chart.outputs.chart_version }}"
+          git tag -d "$TAG_NAME" 2>/dev/null || true
+          git push --delete origin "$TAG_NAME" 2>/dev/null || true
+          git tag -a "$TAG_NAME" -m "Release version ${{ needs.build-chart.outputs.chart_version }} (updated on $(date -u '+%Y-%m-%d %H:%M:%S UTC'))"
+          git push origin "$TAG_NAME" --force
+          echo "Tag $TAG_NAME created/updated and pushed to repository"
