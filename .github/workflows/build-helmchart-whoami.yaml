@@ -7,14 +7,19 @@ on:
     paths:
       - 'helmcharts/whoami/**'
   pull_request:
-    branches:
-      - main
     paths:
       - 'helmcharts/whoami/**'
+
+env:
+  HELMCHART_REPOSITORY: helm.ligidi.africa
+  HELMCHART_USERNAME: admin
+  HELPCHART_PASSWORD: admin
 
 jobs:
   build-chart:
     runs-on: ubuntu-latest
+    outputs:
+      chart_version: ${{ steps.package-chart.outputs.chart_version }}
     steps:
       - uses: actions/checkout@v4
 
@@ -28,6 +33,7 @@ jobs:
           helm lint helmcharts/whoami
 
       - name: Package Helm Chart
+        id: package-chart
         env:
           HELM_CHART_PATH: ./helmcharts/whoami
         run: |
@@ -36,6 +42,7 @@ jobs:
           helm package $HELM_CHART_PATH \
             --version=$VERSION \
             --app-version=$APP_VERSION
+          echo "chart_version=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Upload Helm Chart Artifact
         uses: actions/upload-artifact@v4
@@ -45,7 +52,7 @@ jobs:
 
   push-chart:
     needs: build-chart
-    if: (github.event_name == 'workflow_dispatch' && inputs.push_chart == true)
+    if: github.ref == 'refs/heads/main' && success()
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -58,11 +65,37 @@ jobs:
 
       - name: Push to ChartMuseum
         env:
-          REPO_URL: helm.ligidi.africa
-          REPO_USER: admin
-          REPO_PASS: admin
+          REPO_URL: ${{ env.HELMCHART_REPOSITORY }}
+          REPO_USER: ${{ env.HELMCHART_USERNAME }}
+          REPO_PASS: ${{ env.HELPCHART_PASSWORD }}
         run: |
           CHART_FILE=$(find /tmp/helm-chart -name "*.tgz")
           curl -u "$REPO_USER:$REPO_PASS" \
               -k --data-binary "@$CHART_FILE" \
-              "$REPO_URL/api/charts"
+              "https://$REPO_URL/api/charts"
+
+  create-git-tag:
+    name: Create Git Tag
+    needs: [build-chart, push-chart]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && success()
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Create and Push Tag
+        run: |
+          TAG_NAME="v${{ needs.build-chart.outputs.chart_version }}"
+          git tag -d "$TAG_NAME" 2>/dev/null || true
+          git push --delete origin "$TAG_NAME" 2>/dev/null || true
+          git tag -a "$TAG_NAME" -m "Release version ${{ needs.build-chart.outputs.chart_version }} (updated on $(date -u '+%Y-%m-%d %H:%M:%S UTC'))"
+          git push origin "$TAG_NAME" --force
+          echo "Tag $TAG_NAME created/updated and pushed to repository"
