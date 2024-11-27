@@ -1,25 +1,32 @@
 name: Deploy
 
 on:
-  workflow_dispatch:  # Allows manual trigger
+  workflow_dispatch:  # Allows manual trigger only
+
+env:
+  GIT_TAG: "prod"
 
 jobs:
   create-tag:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Git
+      - name: Configure Git
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@ligidi.africa"
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@github.com"
 
-      - name: Create Git Tag
-        run: |
-          TAG_NAME=prod 
-          git tag $TAG_NAME
-          git push origin $TAG_NAME
+      - name: Create and Push Tag
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ env.GIT_TAG }}
+        run: |
+          git tag -d "$TAG_NAME" 2>/dev/null || true
+          git push --delete origin "$TAG_NAME" 2>/dev/null || true
+          git tag -a "$TAG_NAME" -m "Release $TAG_NAME (updated on $(date -u '+%Y-%m-%d %H:%M:%S UTC'))"
+          git push origin "$TAG_NAME" --force
+          echo "Tag $TAG_NAME created/updated and pushed to repository"
