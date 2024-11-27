@@ -13,7 +13,7 @@ spec:
   source:
     path: infrastructure/argocd/monitoring/ligidi.africa
     repoURL: https://github.com/treboulit/kubernetes-environment-concept.git
-    targetRevision: main
+    targetRevision: prod
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
