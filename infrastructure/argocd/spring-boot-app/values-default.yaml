@@ -1,0 +1,11 @@
+spring-boot-app:
+  image:
+    repository: "docker.ligidi.africa/spring.sample"
+    tag: "1.0.0"
+
+  imagePullSecrets:
+    - name: "docker-ligidi-africa-pull-secret"
+
+  ingressroute:
+    enabled: true
+    path: "/api/spring-sample"
