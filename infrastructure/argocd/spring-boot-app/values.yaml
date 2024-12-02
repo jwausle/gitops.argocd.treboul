@@ -25,3 +25,4 @@ spring-boot-app:
   ingressroute:
     enabled: true
     path: "/api/spring-sample"
+

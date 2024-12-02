@@ -5,7 +5,7 @@ metadata:
   name: "{{ .Values.app.monitor.name }}"
 spec:
   endpoints:
-    - path: /internal/actuator/prometheus
+    - path: /actuator/prometheus
       port: http
   namespaceSelector:
     matchNames:

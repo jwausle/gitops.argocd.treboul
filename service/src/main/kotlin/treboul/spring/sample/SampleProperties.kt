@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 data class SampleProperties(
     val config: SampleKeyValue,
     val secret: SampleKeyValue,
+    val htmlBackgroundColor: String
 )
 
 data class SampleKeyValue(

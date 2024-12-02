@@ -37,6 +37,7 @@ sample:
   secret:
     key: "sample-secret"
     value: "secret"
+  html-background-color: "lightgray"
 
 spring:
   application:
