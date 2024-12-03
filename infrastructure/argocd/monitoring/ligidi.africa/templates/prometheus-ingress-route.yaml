@@ -1,0 +1,17 @@
+{{- if .Values.prometheus.enabled }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: "prometheus-ui"
+  namespace: "{{ .Values.app.namespace }}"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: PathPrefix(`{{ .Values.prometheus.prometheus.prometheusSpec.externalUrl }}`)
+      kind: Rule
+      services:
+        - name: monitoring-prometheus-prometheus
+          port: 80
+  tls: {}
+{{- end }}
