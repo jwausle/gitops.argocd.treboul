@@ -179,3 +179,33 @@ Write/push user:
 The 3 subdirectories [./infrastructure](./infrastructure), [./helmcharts](./helmcharts) and [./service](./service)
 should be 3 separate repositories. For the concept it's sufficient
 that the directories represent this repository.
+
+## Github-Actions
+
+1. build and push helmchart [spring-boot-app](.github/workflows/build-helmchart-spring-boot-app.yaml)
+2. build and push helmchart [whoami](.github/workflows/build-helmchart-whoami.yaml)
+3. build and push image [sample-service](.github/workflows/build-service.yaml)
+4. deploy next app release [argocd](.github/workflows/deploy.yaml)
+
+### 1) Build and push spring-boot-app helmchart
+
+Build and push new helmchart version to the helm repository 
+on any change in the [./helmcharts/spring-boot-app](./helmcharts/spring-boot-app) directory.
+
+* repository: https://helm.ligidi.africa
+* chart: spring-boot-app
+
+### 2) Build and push whoami helmchart
+
+* repository: https://helm.ligidi.africa
+* chart: whoami
+
+### 3) Build and push image
+
+* repository: https://docker.ligidi.africa
+* image: sample-service
+
+### 4) Deploy next app release
+
+Move the `prod` tag ([link](https://github.com/treboulit/kubernetes-environment-concept/blob/prod)) 
+to the current commit in the `main` branch ([link](https://github.com/treboulit/kubernetes-environment-concept/blob/main)).
