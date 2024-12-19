@@ -63,7 +63,7 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
-Extract the configured spring boot application port from either application properties
+Extract the configured quarkus application port from either application properties
 or from a specified environment variable
 */}}
 {{- define "quarkus-app.userApplicationPort" -}}
@@ -81,7 +81,7 @@ or from a specified environment variable
 {{- end }}
 
 {{/*
-Provides the environment configuration for the server port of the spring boot application.
+Provides the environment configuration for the server port of the quarkus application.
 Might not output anything, if a port has been defined by the user of the chart
 */}}
 {{- define "quarkus-app.applicationPortEnvironment" -}}
@@ -93,7 +93,7 @@ Might not output anything, if a port has been defined by the user of the chart
 {{- end }}
 
 {{/*
-Extract the configured spring boot application port from either application properties
+Extract the configured quarkus application port from either application properties
 or from a specified environment variable or from the specified default value
 */}}
 {{- define "quarkus-app.applicationPort" -}}
@@ -114,7 +114,7 @@ Merges the configurations specified in app.config and app.rawConfig
 {{- end }}
 
 {{/*
-Extracts the configured context path from the spring boot application properties
+Extracts the configured context path from the quarkus application properties
 */}}
 {{- define "quarkus-app.contextPath" -}}
 {{- $mergedConfig := mustMerge (default dict .Values.app.config) (tpl .Values.app.rawConfig . | fromYaml) }}

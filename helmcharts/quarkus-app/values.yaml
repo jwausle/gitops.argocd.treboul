@@ -9,11 +9,11 @@ debug: false
 
 image:
   # repository must be provided externally and should point to a
-  # spring boot application
+  # quarkus application image <registry-host>/<app-name> (without version)
   repository: ""
   pullPolicy: Always
   # tag must be provided externally and should represent the version
-  # of the spring boot application
+  # of the quarkus application image
   tag: ""
 
 app:
@@ -21,18 +21,18 @@ app:
   # into the right directory
   pathInContainer: /app
   # specify the port of the application. This will overwrite the server.port property which might have been bundled
-  # in an application properties file in tha spring boot application. However, it will not take any effect if a
+  # in an application properties file in tha quarkus application. However, it will not take any effect if a
   # SERVER_PORT extra-env or server.port property underneath app.config or app.rawConfig is defined
   port: 8080
   # liveness and readiness prove paths for the application, helm variables are supported
   liveness: '{{ include "quarkus-app.contextPath" . | trim }}/internal/actuator/health/liveness'
   readiness: '{{ include "quarkus-app.contextPath" . | trim }}/internal/actuator/health/readiness'
-  # spring boot application properties. The properties will be merged with the ones defined underneath app.rawConfig
+  # quarkus application properties. The properties will be merged with the ones defined underneath app.rawConfig
   # and provided to the application through a config map which gets mounted into the container which runs the
   # application. In contrast to app.rawConfig specific values of the configuration can be overridden more easily
   config: { }
   # references to kubernetes secrets that will be mounted into the container and made available to the application
-  # as application properties. Each specified key represents a spring application property
+  # as application properties. Each specified key represents a quarkus property
   secrets: [ ]
   # e.g.
   #  - name: secret-with-properties
@@ -40,8 +40,8 @@ app:
   #  - name: db-secret
   #    useEnv: true # (default: false|undefined)
   #    items:
-  #      - key: SPRING_DATASOURCE_PASSWORD
-  #        path: spring.datasource.password
+  #      - key: QUAKUS_DATASOURCE_PASSWORD
+  #        path: quarkus.datasource.password
 
   # quarkus application properties can be placed underneath in yaml format the properties will be merged with
   # the ones defined underneath app.config and provided to the application through a config map which gets mounted
@@ -54,8 +54,8 @@ app:
 # specify extra environment configuration for the application. The extra environment will be evaluated with the tpl
 # function, which means helm variables are supported
 # e.g.:
-# - name: SPRING_JPA_URL
-#   value: "jdbc:mysql:database-service/db"
+# - name: QUARKUS_LOG_LEVEL
+#   value: "debug"
 extraEnv: |
 
 # specify extra volumes. The extra volumes will be evaluated with the tpl function, which means helm variables
