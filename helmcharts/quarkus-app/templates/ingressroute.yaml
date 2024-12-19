@@ -1,0 +1,57 @@
+{{- if .Values.ingressroute.enabled }}
+{{- $ingressRoute := printf "/%s" (trimAll "/" (required "You must specify ingressroute.path for deployment or disable ingress routing by setting ingressroute.enabled to false" (tpl .Values.ingressroute.path .))) }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "spring-boot-app.fullname" . }}-tls
+  labels:
+    {{- include "spring-boot-app.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: PathPrefix(`{{ $ingressRoute }}`) && !PathPrefix(`{{ $ingressRoute }}{any:.*}/internal`)
+      kind: Rule
+      middlewares:
+        - name: {{ include "spring-boot-app.fullname" . }}
+        {{- if .Values.ingressroute.cors.allowed }}
+        - name: {{ include "spring-boot-app.fullname" . }}-cors
+        {{- end }}
+      services:
+        - name: {{ include "spring-boot-app.fullname" . }}
+          port: {{ .Values.service.port }}
+  tls: {}
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "spring-boot-app.fullname" . }}
+  labels:
+    {{- include "spring-boot-app.labels" . | nindent 4 }}
+
+spec:
+  stripPrefix:
+    prefixes:
+      - {{ $ingressRoute }}
+      - {{ $ingressRoute }}/
+{{- end }}
+---
+{{- if and (.Values.ingressroute.enabled) (.Values.ingressroute.cors.allowed) }}
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "spring-boot-app.fullname" . }}-cors
+  labels:
+    {{- include "spring-boot-app.labels" . | nindent 4 }}
+
+spec:
+  headers:
+    accessControlAllowHeaders:
+      - '*'
+    accessControlAllowMethods:
+      - '*'
+    accessControlAllowOriginList:
+      - '*'
+    accessControlMaxAge: 100
+    addVaryHeader: true
+{{- end }}

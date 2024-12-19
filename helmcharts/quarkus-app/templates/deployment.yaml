@@ -1,0 +1,146 @@
+{{- $secrets := (include "spring-boot-app.secrets" . | fromYaml).secrets }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "spring-boot-app.fullname" . }}
+  labels:
+    {{- include "spring-boot-app.labels" . | nindent 4 }}
+    {{- with .Values.app.labels }}
+    {{- tpl (toYaml .) $ | nindent 4 }}
+    {{- end}}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "spring-boot-app.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        # Doc: https://helm.sh/docs/howto/charts_tips_and_tricks/#automatically-roll-deployments when configmap change
+        checksum/app-configuration: {{ include (print $.Template.BasePath "/app-configuration.yaml") . | sha256sum }}
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "spring-boot-app.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "spring-boot-app.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ include "spring-boot-app.fullname" . }}-config
+        {{- if or $secrets .Values.postgresql.enabled }}
+        - name: secrets-volume
+          projected:
+            defaultMode: 0400
+            sources:
+              {{- if .Values.postgresql.enabled }}
+              - secret:
+                  name: {{ tpl .Values.postgresql.auth.existingSecret . }}
+                  items:
+                    - key: "password"
+                      path: spring.datasource.password
+              {{- end }}
+              {{- range $secrets }}
+              - secret:
+                {{- toYaml . | nindent 18 }}
+              {{- end }}
+        {{- end }}
+        {{- if (trim .Values.extraVolumes) }}
+        {{- tpl .Values.extraVolumes . | trim | nindent 8 }}
+        {{- end }}
+      {{- if .Values.debug }}
+      initContainers:
+        - name: {{.Chart.Name }}-debug
+          image: ubuntu:latest
+          securityContext:
+            runAsUser: 0
+            privileged: true
+          command: [ "sh", "-c", "cat {{ trimSuffix "/" .Values.app.pathInContainer }}/config/application.yaml && find /var/run/secrets/app" ]
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: config-volume
+              mountPath: {{ trimSuffix "/" .Values.app.pathInContainer }}/config
+              readOnly: true
+            {{- if or $secrets .Values.postgresql.enabled }}
+            - name: secrets-volume
+              mountPath: "/var/run/secrets/app"
+              readOnly: true
+            {{- end }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: '{{ required "You must specify image.repository through values" .Values.image.repository }}:{{ required "You must specify image.tag through values" (.Values.image.tag | default .Chart.AppVersion) }}'
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: config-volume
+              mountPath: {{ trimSuffix "/" .Values.app.pathInContainer }}/config
+              readOnly: true
+            {{- if or $secrets .Values.postgresql.enabled }}
+            - name: secrets-volume
+              mountPath: "/var/run/secrets/app"
+              readOnly: true
+            {{- end }}
+            {{- if (trim .Values.extraVolumeMounts) }}
+            {{- tpl .Values.extraVolumeMounts . | trim | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ include "spring-boot-app.applicationPort" . }}
+              protocol: TCP
+          env:
+            - name: SPRING_CONFIG_LOCATION
+              value: "classpath:/,file:{{ trimSuffix "/" .Values.app.pathInContainer }}/config/application.yaml"
+            {{- if (trim .Values.extraEnv) }}
+            {{- tpl .Values.extraEnv . | trim | nindent 12 }}
+            {{- end }}
+            {{- include "spring-boot-app.applicationPortEnvironment" . | trim | nindent 12 }}
+            {{- if .Values.postgresql.enabled }}
+            - name: SPRING_DATASOURCE_URL
+              {{- $postgresPort := tpl (default .Values.postgresql.service.ports.postgresql  ((((.Values.global).postgresql).service).ports).postgresql) . }}
+              {{- $postgresDb := tpl (default .Values.postgresql.auth.database (((.Values.global).postgresql).auth).database) . }}
+              value: "jdbc:postgresql://{{ .Release.Name }}-postgresql:{{ $postgresPort }}/{{ $postgresDb }}"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "{{ tpl (default .Values.postgresql.auth.username (((.Values.global).postgresql).auth).username) . }}"
+            {{- end }}
+          livenessProbe:
+            httpGet:
+              path: {{ tpl .Values.app.liveness . | trim }}
+              port: http
+          readinessProbe:
+            httpGet:
+              path: {{ tpl .Values.app.readiness . | trim }}
+              port: http
+          startupProbe:
+            httpGet:
+              path: {{ tpl .Values.app.liveness . | trim }}
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
