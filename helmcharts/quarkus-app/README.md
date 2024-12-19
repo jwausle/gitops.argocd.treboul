@@ -3,7 +3,7 @@
 ## Quickstart
 
 ```shell
-cd spring-boot-app
+cd quarkus-app
 ```
 
 ### Install a microservice with the chart

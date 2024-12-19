@@ -1,4 +1,4 @@
-# Default values for spring-boot-app.
+# Default values for quarkus-app.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -25,8 +25,8 @@ app:
   # SERVER_PORT extra-env or server.port property underneath app.config or app.rawConfig is defined
   port: 8080
   # liveness and readiness prove paths for the application, helm variables are supported
-  liveness: '{{ include "spring-boot-app.contextPath" . | trim }}/internal/actuator/health/liveness'
-  readiness: '{{ include "spring-boot-app.contextPath" . | trim }}/internal/actuator/health/readiness'
+  liveness: '{{ include "quarkus-app.contextPath" . | trim }}/internal/actuator/health/liveness'
+  readiness: '{{ include "quarkus-app.contextPath" . | trim }}/internal/actuator/health/readiness'
   # spring boot application properties. The properties will be merged with the ones defined underneath app.rawConfig
   # and provided to the application through a config map which gets mounted into the container which runs the
   # application. In contrast to app.rawConfig specific values of the configuration can be overridden more easily

@@ -3,9 +3,9 @@
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: {{ include "spring-boot-app.fullname" . }}-tls
+  name: {{ include "quarkus-app.fullname" . }}-tls
   labels:
-    {{- include "spring-boot-app.labels" . | nindent 4 }}
+    {{- include "quarkus-app.labels" . | nindent 4 }}
 spec:
   entryPoints:
     - websecure
@@ -13,21 +13,21 @@ spec:
     - match: PathPrefix(`{{ $ingressRoute }}`) && !PathPrefix(`{{ $ingressRoute }}{any:.*}/internal`)
       kind: Rule
       middlewares:
-        - name: {{ include "spring-boot-app.fullname" . }}
+        - name: {{ include "quarkus-app.fullname" . }}
         {{- if .Values.ingressroute.cors.allowed }}
-        - name: {{ include "spring-boot-app.fullname" . }}-cors
+        - name: {{ include "quarkus-app.fullname" . }}-cors
         {{- end }}
       services:
-        - name: {{ include "spring-boot-app.fullname" . }}
+        - name: {{ include "quarkus-app.fullname" . }}
           port: {{ .Values.service.port }}
   tls: {}
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
-  name: {{ include "spring-boot-app.fullname" . }}
+  name: {{ include "quarkus-app.fullname" . }}
   labels:
-    {{- include "spring-boot-app.labels" . | nindent 4 }}
+    {{- include "quarkus-app.labels" . | nindent 4 }}
 
 spec:
   stripPrefix:
@@ -40,9 +40,9 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
-  name: {{ include "spring-boot-app.fullname" . }}-cors
+  name: {{ include "quarkus-app.fullname" . }}-cors
   labels:
-    {{- include "spring-boot-app.labels" . | nindent 4 }}
+    {{- include "quarkus-app.labels" . | nindent 4 }}
 
 spec:
   headers:

@@ -1,5 +1,5 @@
 apiVersion: v2
-name: spring-boot-app
+name: quarkus-app
 description: A Helm chart for running any kind of spring boot applications
 
 appVersion: "1.0"

@@ -1,19 +1,19 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "spring-boot-app.fullname" . }}
+  name: {{ include "quarkus-app.fullname" . }}
   labels:
   # Use `with` instead `toYaml .Values.service.labels`, because toYaml would otherwise render "{}" instead of an empty string
     {{- with .Values.service.labels }}
     {{- tpl (toYaml .) $ | nindent 4 }}
     {{- end}}
-    {{- include "spring-boot-app.labels" . | nindent 4 }}
+    {{- include "quarkus-app.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: {{ include "spring-boot-app.applicationPort" . }}
+      targetPort: {{ include "quarkus-app.applicationPort" . }}
       protocol: TCP
       name: http
   selector:
-    {{- include "spring-boot-app.selectorLabels" . | nindent 4 }}
+    {{- include "quarkus-app.selectorLabels" . | nindent 4 }}

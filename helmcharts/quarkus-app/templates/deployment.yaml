@@ -1,10 +1,10 @@
-{{- $secrets := (include "spring-boot-app.secrets" . | fromYaml).secrets }}
+{{- $secrets := (include "quarkus-app.secrets" . | fromYaml).secrets }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "spring-boot-app.fullname" . }}
+  name: {{ include "quarkus-app.fullname" . }}
   labels:
-    {{- include "spring-boot-app.labels" . | nindent 4 }}
+    {{- include "quarkus-app.labels" . | nindent 4 }}
     {{- with .Values.app.labels }}
     {{- tpl (toYaml .) $ | nindent 4 }}
     {{- end}}
@@ -14,7 +14,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "spring-boot-app.selectorLabels" . | nindent 6 }}
+      {{- include "quarkus-app.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       annotations:
@@ -24,19 +24,19 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "spring-boot-app.selectorLabels" . | nindent 8 }}
+        {{- include "quarkus-app.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "spring-boot-app.serviceAccountName" . }}
+      serviceAccountName: {{ include "quarkus-app.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
         - name: config-volume
           configMap:
-            name: {{ include "spring-boot-app.fullname" . }}-config
+            name: {{ include "quarkus-app.fullname" . }}-config
         {{- if or $secrets .Values.postgresql.enabled }}
         - name: secrets-volume
           projected:
@@ -96,7 +96,7 @@ spec:
             {{- end }}
           ports:
             - name: http
-              containerPort: {{ include "spring-boot-app.applicationPort" . }}
+              containerPort: {{ include "quarkus-app.applicationPort" . }}
               protocol: TCP
           env:
             - name: SPRING_CONFIG_LOCATION
@@ -104,7 +104,7 @@ spec:
             {{- if (trim .Values.extraEnv) }}
             {{- tpl .Values.extraEnv . | trim | nindent 12 }}
             {{- end }}
-            {{- include "spring-boot-app.applicationPortEnvironment" . | trim | nindent 12 }}
+            {{- include "quarkus-app.applicationPortEnvironment" . | trim | nindent 12 }}
             {{- if .Values.postgresql.enabled }}
             - name: SPRING_DATASOURCE_URL
               {{- $postgresPort := tpl (default .Values.postgresql.service.ports.postgresql  ((((.Values.global).postgresql).service).ports).postgresql) . }}
