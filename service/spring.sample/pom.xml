@@ -69,8 +69,8 @@
 
 	<build>
 		<finalName>${artifactId}</finalName>
-		<sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
-		<testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
+		<sourceDirectory>src</sourceDirectory>
+		<testSourceDirectory>src</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
