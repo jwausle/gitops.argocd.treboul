@@ -10,8 +10,10 @@ data:
     {{- $secrets := (include "quarkus-app.secrets" . | fromYaml).secrets }}
     {{- if $secrets }}
     ---
-    # Import mounted kubernetes secrets as application properties
-    spring:
+    # (Magic) Import mounted kubernetes secrets as application properties
+    smallrye:
       config:
-        import: optional:configtree:/var/run/secrets/app/
+        source:
+          file:
+            locations: /var/run/secrets/app/
     {{- end }}

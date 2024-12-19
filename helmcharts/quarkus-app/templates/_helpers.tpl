@@ -129,13 +129,6 @@ Merge user defined secrets with default secrets
 */}}
 {{- define "quarkus-app.secrets" -}}
 {{- $secrets := .Values.app.secrets }}
-{{- if .Values.app.defaultSecrets }}
-{{- range $key, $secretDetails := .Values.app.defaultSecrets }}
-{{- if $secretDetails.enabled }}
-{{- $secrets = append $secrets $secretDetails.spec }}
-{{- end }}
-{{- end }}
-{{- end }}
 secrets:
 {{- $secrets | toYaml | nindent 2 }}
 {{- end }}

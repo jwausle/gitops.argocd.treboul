@@ -19,7 +19,7 @@ image:
 app:
   # The configuration root path. Is used to mount the configuration
   # into the right directory
-  pathInContainer: /etc/spring
+  pathInContainer: /app
   # specify the port of the application. This will overwrite the server.port property which might have been bundled
   # in an application properties file in tha spring boot application. However, it will not take any effect if a
   # SERVER_PORT extra-env or server.port property underneath app.config or app.rawConfig is defined
@@ -43,31 +43,13 @@ app:
   #      - key: SPRING_DATASOURCE_PASSWORD
   #        path: spring.datasource.password
 
-  # spring boot application properties can be placed underneath in yaml format the properties will be merged with
+  # quarkus application properties can be placed underneath in yaml format the properties will be merged with
   # the ones defined underneath app.config and provided to the application through a config map which gets mounted
   # into the container which runs the application. The config specified below is evaluated using the tpl function
   # meaning helm template variables can be used
   rawConfig: |
   # Additional labels that will only be applied to the Deployment
   labels: { }
-  # default secrets that will be merged with user provided secrets
-  defaultSecrets:
-    # default secret for actuator endpoint auth
-    database:
-      # enable or disable usage of the default secret. If disabled, allows the user to specify a user defined
-      # configuration
-      enabled: false
-      # The secret spec to use (should not be changed, instead set the enabled flag to false and specify your
-      # own actuator spring boot properties as needed)
-      spec:
-        # The name of the existing secret.
-        name: database-password
-        optional: false
-        items:
-          - key: username
-            path: spring.datasource.username
-          - key: password
-            path: spring.datasource.password
 
 # specify extra environment configuration for the application. The extra environment will be evaluated with the tpl
 # function, which means helm variables are supported

@@ -1,6 +1,6 @@
 apiVersion: v2
 name: quarkus-app
-description: A Helm chart for running any kind of spring boot applications
+description: A Helm chart for running any kind of quarkus applications
 
 appVersion: "1.0"
 
@@ -10,5 +10,5 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.0.1
+version: 1.0.0
 
