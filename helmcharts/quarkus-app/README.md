@@ -1,9 +1,10 @@
-# Common helm chart for spring boot apps
+# Common helm chart for quarkus apps
 
 ## Quickstart
 
 ```shell
 cd quarkus-app
+helm template --set image.repository=quarkus-app-image
 ```
 
 ### Install a microservice with the chart
@@ -22,9 +23,9 @@ helm upgrade --install <RELEASE> . --set image.repository=<IMAGE>,image.tag=<VER
 
 | Name                                   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                    | Default Value                                 |
 |----------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------|
-| `image.repository`                     | (**Mandatory**) Specifies the spring boot applications image to be installed                                                                                                                                                                                                                                                                                                                                                                   | `""`                                          |
-| `image.tag`                            | (**Mandatory**) Specifies the spring boot applications image tag/version to be installed                                                                                                                                                                                                                                                                                                                                                       | `""`                                          |
-| `app.pathInContainer`                  | The root path under which the spring boot jar is placed in the container. Is used to mount the configuration into the correct directory                                                                                                                                                                                                                                                                                                        | `"/etc/spring"`                               |
+| `image.repository`                     | (**Mandatory**) Specifies the quarkus applications image to be installed                                                                                                                                                                                                                                                                                                                                                                       | `""`                                          |
+| `image.tag`                            | (**Mandatory**) Specifies the quarkus applications image tag/version to be installed                                                                                                                                                                                                                                                                                                                                                       | `""`                                          |
+| `app.pathInContainer`                  | The root path under which the quarkus jar is placed in the container. Is used to mount the configuration into the correct directory                                                                                                                                                                                                                                                                                                        | `"/etc/spring"`                               |
 | `app.port`                             | Specify the port of the application. This will overwrite the server.port property which might have been bundled in an application properties file in tha spring boot application. However, it will not take any effect if a `SERVER_PORT` extra-env or `server.port` property underneath `app.config` or `app.rawConfig` is defined                                                                                                            | `8080`                                        |
 | `app.liveness`                         | Path to the http liveness endpoint of the application (typically the actuator health endpoint). The default automatically detects if `server.servlet.context-path` is configured (but only, if it is configured through the helm chart) and prepends the context path accordingly.                                                                                                                                                             | `/internal/actuator/health/liveness`          |
 | `app.readiness`                        | Path to the http readiness endpoint of the application (typically the actuator health endpoint). The default automatically detects if `server.servlet.context-path` is configured (but only, if it is configured through the helm chart) and prepends the context path accordingly.                                                                                                                                                            | `/internal/actuator/health/readiness`         |
@@ -55,34 +56,30 @@ underneath `{{ .Values.app.pathInContainer }}/config`
 
 Here you can specify arbitrary spring boot application properties directly in yaml format.
 
-Example `values.yaml` with spring boot configuration:
+Example `values.yaml` with quarkus configuration:
 
 ```yaml
 # values.yaml
 app:
   config:
-    server:
-      port: 8081
-    spring:
-      datasource:
-        username: postgres
+    quarkus:
+      http:
+        port: 8081
 ```
 
 The above configuration would result in the following `application.yaml` file to be mounted as configuration
-for the spring boot app underneath the configured `app.pathInContainer`:
+for the quarkus app underneath the configured `app.pathInContainer`:
 
 ```yaml
-# /opt/app/config/application.yaml (mounted in container)
-server:
-  port: 8081
-spring:
-  datasource:
-    username: postgres
+# /app/config/application.yaml (mounted in container)
+quarkus:
+  http:
+    port: 8081
 ```
 
 ### `app.rawConfig`
 
-Additionally, to `app.config`, you can specify spring boot properties through `app.rawConfig`. The difference
+Additionally, to `app.config`, you can specify quarkus properties through `app.rawConfig`. The difference
 is that `app.rawConfig` takes a raw string (which must be valid yaml) and supports helm variable substitution.
 
 Example `values.yaml` with spring boot `app.rawConfig` configuration:
@@ -91,26 +88,22 @@ Example `values.yaml` with spring boot `app.rawConfig` configuration:
 # values.yaml
 app:
   rawConfig: |
-    server:
-      port: 8081
-    spring:
-      datasource:
-        username: "{{ .Values.postgres.auth.username }}"
+    quarkus:
+      http:
+        port: "{{ .Values.app.port }}"
 ```
 
 The above configuration would result in the following `application.yaml` file to be mounted as configuration
 for the spring boot app underneath the configured `app.pathInContainer`:
 
 ```yaml
-# /opt/app/config/application.yaml (mounted in container)
-server:
-  port: 8081
-spring:
-  datasource:
-    username: "app_user"
+# /app/config/application.yaml (mounted in container)
+quarkus:
+  http:
+    port: 8081
 ```
 
-> **NOTE:** The helm variable `{{ .Values.postres.auth.username }}` has been replaced accordingly
+> **NOTE:** The helm variable `{{ .Values.app.port }}` has been replaced accordingly
 
 ### Specifying both `app.config` and `app.rawConfig`
 
@@ -124,25 +117,22 @@ For example, if you have the following `values.yaml` file:
 # values.yaml
 app:
   config:
-    server:
-      port: 9999
-    spring:
-      datasource:
-        username: postgres
+    quarkus:
+      http:
+        port: 9999
   rawConfig: |
-    server:
-      port: 8888
+    quarkus:
+      http:
+        port: 8888
 ```
 
 The resulting `application.yaml` file will look like this:
 
 ```yaml
-# /opt/app/config/application.yaml (mounted in container)
-server:
-  port: 9999
-spring:
-  datasource:
-    username: postgres
+# /app/config/application.yaml (mounted in container)
+quarkus:
+  http:
+    port: 9999
 ```
 
 > **NOTE:** The `server.port` value specified underneath `app.rawConfig` would have no effect in this scenario.

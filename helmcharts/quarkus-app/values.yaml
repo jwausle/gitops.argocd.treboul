@@ -14,7 +14,7 @@ image:
   pullPolicy: Always
   # tag must be provided externally and should represent the version
   # of the quarkus application image
-  tag: ""
+  tag: "latest"
 
 app:
   # The configuration root path. Is used to mount the configuration
@@ -73,18 +73,6 @@ extraVolumes: |
 #   mountPath: "/app/data"
 extraVolumeMounts: |
 
-# Configure postgresql, can be enabled/disabled through postgresql.enabled property. If disabled, you will have
-# to configure a database connection manually, if appropriate
-postgresql:
-  enabled: false
-  service:
-    ports:
-      postgresql: "5432"
-  auth:
-    username: "app_user"
-    database: "app_database"
-    existingSecret: "{{ .Release.Name }}-postgres-secret"
-
 imagePullSecrets: [ ]
 nameOverride: ""
 fullnameOverride: ""
@@ -129,7 +117,7 @@ ingressroute:
   path: "/api/{{ .Release.Name }}"
   # Enable CORS requests for the service ingress route.
   # - be aware to allow it because it has big security impact
-  # - it's recomment to permit it only at development environments
+  # - it's recommend to permit it only at development environments
   cors:
     allowed: false
 

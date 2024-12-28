@@ -37,23 +37,6 @@ spec:
         - name: config-volume
           configMap:
             name: {{ include "quarkus-app.fullname" . }}-config
-        {{- if or $secrets .Values.postgresql.enabled }}
-        - name: secrets-volume
-          projected:
-            defaultMode: 0400
-            sources:
-              {{- if .Values.postgresql.enabled }}
-              - secret:
-                  name: {{ tpl .Values.postgresql.auth.existingSecret . }}
-                  items:
-                    - key: "password"
-                      path: spring.datasource.password
-              {{- end }}
-              {{- range $secrets }}
-              - secret:
-                {{- toYaml . | nindent 18 }}
-              {{- end }}
-        {{- end }}
         {{- if (trim .Values.extraVolumes) }}
         {{- tpl .Values.extraVolumes . | trim | nindent 8 }}
         {{- end }}
@@ -70,11 +53,6 @@ spec:
             - name: config-volume
               mountPath: {{ trimSuffix "/" .Values.app.pathInContainer }}/config
               readOnly: true
-            {{- if or $secrets .Values.postgresql.enabled }}
-            - name: secrets-volume
-              mountPath: "/var/run/secrets/app"
-              readOnly: true
-            {{- end }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
@@ -86,11 +64,6 @@ spec:
             - name: config-volume
               mountPath: {{ trimSuffix "/" .Values.app.pathInContainer }}/config
               readOnly: true
-            {{- if or $secrets .Values.postgresql.enabled }}
-            - name: secrets-volume
-              mountPath: "/var/run/secrets/app"
-              readOnly: true
-            {{- end }}
             {{- if (trim .Values.extraVolumeMounts) }}
             {{- tpl .Values.extraVolumeMounts . | trim | nindent 12 }}
             {{- end }}
@@ -99,20 +72,12 @@ spec:
               containerPort: {{ include "quarkus-app.applicationPort" . }}
               protocol: TCP
           env:
-            - name: SPRING_CONFIG_LOCATION
-              value: "classpath:/,file:{{ trimSuffix "/" .Values.app.pathInContainer }}/config/application.yaml"
+            - name: SMALLRYE_CONFIG_SOURCE_FILE_LOCATIONS
+              value: "{{ trimSuffix "/" .Values.app.pathInContainer }}/config"
             {{- if (trim .Values.extraEnv) }}
             {{- tpl .Values.extraEnv . | trim | nindent 12 }}
             {{- end }}
             {{- include "quarkus-app.applicationPortEnvironment" . | trim | nindent 12 }}
-            {{- if .Values.postgresql.enabled }}
-            - name: SPRING_DATASOURCE_URL
-              {{- $postgresPort := tpl (default .Values.postgresql.service.ports.postgresql  ((((.Values.global).postgresql).service).ports).postgresql) . }}
-              {{- $postgresDb := tpl (default .Values.postgresql.auth.database (((.Values.global).postgresql).auth).database) . }}
-              value: "jdbc:postgresql://{{ .Release.Name }}-postgresql:{{ $postgresPort }}/{{ $postgresDb }}"
-            - name: SPRING_DATASOURCE_USERNAME
-              value: "{{ tpl (default .Values.postgresql.auth.username (((.Values.global).postgresql).auth).username) . }}"
-            {{- end }}
           livenessProbe:
             httpGet:
               path: {{ tpl .Values.app.liveness . | trim }}

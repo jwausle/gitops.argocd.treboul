@@ -1,0 +1,167 @@
+name: Build Spring Service
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'service/spring/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'service/spring/**'
+
+env:
+  DOCKER_REGISTRY: docker.ligidi.africa
+  DOCKER_USERNAME: admin
+  DOCKER_PASSWORD: admin
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
+jobs:
+  build-image:
+    name: Build JAR and Docker Image
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.prep.outputs.image_tag }}
+      maven_version: ${{ steps.maven-info.outputs.version }}
+      artifact_id: ${{ steps.maven-info.outputs.artifactId }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Get Maven project info
+        id: maven-info
+        run: |
+          ARTIFACT_ID=$(mvn help:evaluate --file service/spring/pom.xml -Dexpression=project.artifactId -q -DforceStdout)
+          VERSION=$(mvn help:evaluate --file service/spring/pom.xml -Dexpression=project.version -q -DforceStdout)
+          echo "artifactId=${ARTIFACT_ID}" >> $GITHUB_OUTPUT
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Build with Maven
+        run: mvn -B package --file service/spring/pom.xml
+
+      - name: Prepare Docker metadata
+        id: prep
+        run: |
+          TAGS="${DOCKER_REGISTRY}/${{ steps.maven-info.outputs.artifactId }}:${{ steps.maven-info.outputs.version }}"
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            TAGS="${TAGS},${DOCKER_REGISTRY}/${{ steps.maven-info.outputs.artifactId }}:latest"
+          fi
+          echo "image_tag=${TAGS}" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          config-inline: |
+            [registry."docker.ligidi.africa"]
+              insecure = true
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./service/spring
+          file: ./service/spring/Dockerfile
+          push: false
+          tags: ${{ steps.prep.outputs.image_tag }}
+          load: true
+          outputs: type=docker,dest=/tmp/${{ steps.maven-info.outputs.artifactId }}-${{ steps.maven-info.outputs.version }}.tar
+
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker-image
+          path: /tmp/*.tar
+          retention-days: 1
+
+  push-image:
+    name: Push Docker Image
+    needs: build-image
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
+
+    steps:
+      - name: Download image artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: docker-image
+          path: /tmp
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker
+        uses: docker/login-action@v3
+        if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}
+
+      - name: Load Docker image
+        if: github.ref == 'refs/heads/main'
+        run: | 
+          docker load --input /tmp/*.tar
+          echo "Docker image loaded ${{ needs.build-image.outputs.image_tag }}"
+          for tag in $(echo ${{ needs.build-image.outputs.image_tag }} | tr "," "\n"); do
+            docker push $tag
+          done
+
+  create-git-tag:
+    needs: [build-image, push-image]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && success()
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Create and Push Tag
+        run: |
+          TAG_NAME="v${{ needs.build-image.outputs.maven_version }}"
+          git tag -d "$TAG_NAME" 2>/dev/null || true
+          git push --delete origin "$TAG_NAME" 2>/dev/null || true
+          git tag -a "$TAG_NAME" -m "Release version ${{ needs.build-info.outputs.maven_version }} (updated on $(date -u '+%Y-%m-%d %H:%M:%S UTC'))"
+          git push origin "$TAG_NAME" --force
+          echo "Tag $TAG_NAME created/updated and pushed to repository"
+
+  update-chart-image:
+    needs: [ build-image, create-git-tag ]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && success()
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Update and Push image change
+        env:
+          IMAGE_VERSION: ${{ needs.build-image.outputs.maven_version }}
+          VALUES_PATH: "./infrastructure/argocd/spring-boot-app/values.yaml"
+        run: |
+          sed -i.bak "s/\( *\)tag: .*/\1tag: ${IMAGE_VERSION}/g" ${VALUES_PATH}
+          git add ${VALUES_PATH}
+          git commit -m "Update spring-boot-app image version to ${IMAGE_VERSION}"
+          git push origin main
+          echo "Updated spring-boot-app image version in values.yaml to ${IMAGE_VERSION}"
