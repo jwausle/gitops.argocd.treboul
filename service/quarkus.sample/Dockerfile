@@ -1,7 +1,9 @@
 FROM eclipse-temurin:17-jre-alpine
 
-RUN mkdir app
-COPY target/spring.sample.jar app/spring.sample.jar
+RUN mkdir /app
+WORKDIR /app
+
+COPY target/quarkus-app/ /app/quarkus-app
 EXPOSE 8080
 
 ENTRYPOINT [ \
@@ -11,5 +13,5 @@ ENTRYPOINT [ \
   # show inital memory allocation on startup \
   "-XshowSettings:vm", \
   "-jar", \
-  "app/spring.sample.jar" \
+  "/app/quarkus-app/quarkus-run.jar" \
 ]

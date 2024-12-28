@@ -1,16 +1,16 @@
-name: Build Spring Service
+name: Build Quarkus Service
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'service/spring/**'
+      - 'service/quarkus/**'
   pull_request:
     branches:
       - main
     paths:
-      - 'service/spring/**'
+      - 'service/quarkus/**'
 
 env:
   DOCKER_REGISTRY: docker.ligidi.africa
@@ -40,13 +40,13 @@ jobs:
       - name: Get Maven project info
         id: maven-info
         run: |
-          ARTIFACT_ID=$(mvn help:evaluate --file service/spring/pom.xml -Dexpression=project.artifactId -q -DforceStdout)
-          VERSION=$(mvn help:evaluate --file service/spring/pom.xml -Dexpression=project.version -q -DforceStdout)
+          ARTIFACT_ID=$(mvn help:evaluate --file service/quarkus/pom.xml -Dexpression=project.artifactId -q -DforceStdout)
+          VERSION=$(mvn help:evaluate --file service/quarkus/pom.xml -Dexpression=project.version -q -DforceStdout)
           echo "artifactId=${ARTIFACT_ID}" >> $GITHUB_OUTPUT
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Build with Maven
-        run: mvn -B package --file service/spring/pom.xml
+        run: mvn -B package --file service/quarkus/pom.xml
 
       - name: Prepare Docker metadata
         id: prep
@@ -67,8 +67,8 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v4
         with:
-          context: ./service/spring
-          file: ./service/spring/Dockerfile
+          context: ./service/quarkus
+          file: ./service/quarkus/Dockerfile
           push: false
           tags: ${{ steps.prep.outputs.image_tag }}
           load: true
@@ -147,7 +147,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 0`
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure Git
@@ -158,10 +158,10 @@ jobs:
       - name: Update and Push image change
         env:
           IMAGE_VERSION: ${{ needs.build-image.outputs.maven_version }}
-          VALUES_PATH: "./infrastructure/argocd/spring-boot-app/values.yaml"
+          VALUES_PATH: "./infrastructure/argocd/quarkus-app/values.yaml"
         run: |
           sed -i.bak "s/\( *\)tag: .*/\1tag: ${IMAGE_VERSION}/g" ${VALUES_PATH}
           git add ${VALUES_PATH}
-          git commit -m "Update spring-boot-app image version to ${IMAGE_VERSION}"
+          git commit -m "Update quarkus-app image version to ${IMAGE_VERSION}"
           git push origin main
-          echo "Updated spring-boot-app image version in values.yaml to ${IMAGE_VERSION}"
+          echo "Updated quarkus-app image version in values.yaml to ${IMAGE_VERSION}"

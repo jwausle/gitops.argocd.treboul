@@ -14,7 +14,7 @@ sample:
 my-secret: "must-overwrite"
 my-secret2: "must-overwrite yaml"
 
-# Reset ordinal:255 to 99 to support overwriting by FileSystem Config Source
+# Reset ordinal:255 to 99 to support overwriting by FileSystem Config Source (with static ordinal:100)
 # - ordinal doc: https://smallrye.io/smallrye-config/3.10.2/config/getting-started/
 # - file system: https://smallrye.io/smallrye-config/3.10.2/config-sources/filesystem/
 config_ordinal: 99

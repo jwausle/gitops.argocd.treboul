@@ -10,7 +10,6 @@ import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.UriInfo
-import java.util.LinkedHashMap
 import org.eclipse.microprofile.config.ConfigProvider
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.slf4j.LoggerFactory
@@ -46,9 +45,14 @@ class SampleApplication {
         for (configSource in config.configSources) {
             map["################### ${configSource.name}"] = "#######################################################"
             map["${configSource.name}"] = "${configSource.ordinal}"
-            map.putAll(configSource.properties)
+            configSource.properties.forEach { (key, value) ->
+                if (!map.containsKey(key)) {
+                    map[key] = value
+                } else {
+                    map["$key(${configSource.ordinal})"] = value
+                }
+            }
         }
-
         return map
     }
 
