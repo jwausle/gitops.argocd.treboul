@@ -1,0 +1,28 @@
+secret:
+  name: "quarkus-sample-app-secret"
+  key: "secret-key"
+  value: "helmchart-secret"
+
+quarkus-app:
+  app:
+    config:
+      sample:
+        config:
+          value: "helmchart-config"
+    secrets:
+      - name: "spring-sample-app-secret"
+        items:
+          - key: "secret-key"
+            path: "sample.secret.value"
+
+  image:
+    repository: "docker.ligidi.africa/quarkus.sample"
+    tag: "1.0.0"
+
+  imagePullSecrets:
+    - name: "docker-ligidi-africa-pull-secret"
+
+  ingressroute:
+    enabled: true
+    path: "/api/quarkus-sample"
+
