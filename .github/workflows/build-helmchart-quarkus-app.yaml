@@ -15,7 +15,7 @@ env:
   HELMCHART_USERNAME: admin
   HELMCHART_PASSWORD: admin
   HELMCHART_PATH: helmcharts/quarkus-app
-  GIT_TAG_PREFIX: cs
+  GIT_TAG_PREFIX: cq
 
 jobs:
   build-chart:
