@@ -5,12 +5,12 @@ on:
     branches:
       - main
     paths:
-      - 'service/quarkus/**'
+      - 'service/quarkus.sample/**'
   pull_request:
     branches:
       - main
     paths:
-      - 'service/quarkus/**'
+      - 'service/quarkus.sample/**'
 
 env:
   DOCKER_REGISTRY: docker.ligidi.africa
@@ -40,13 +40,13 @@ jobs:
       - name: Get Maven project info
         id: maven-info
         run: |
-          ARTIFACT_ID=$(mvn help:evaluate --file service/quarkus/pom.xml -Dexpression=project.artifactId -q -DforceStdout)
-          VERSION=$(mvn help:evaluate --file service/quarkus/pom.xml -Dexpression=project.version -q -DforceStdout)
+          ARTIFACT_ID=$(mvn help:evaluate --file service/quarkus.sample/pom.xml -Dexpression=project.artifactId -q -DforceStdout)
+          VERSION=$(mvn help:evaluate --file service/quarkus.sample/pom.xml -Dexpression=project.version -q -DforceStdout)
           echo "artifactId=${ARTIFACT_ID}" >> $GITHUB_OUTPUT
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Build with Maven
-        run: mvn -B package --file service/quarkus/pom.xml
+        run: mvn -B package --file service/quarkus.sample/pom.xml
 
       - name: Prepare Docker metadata
         id: prep
@@ -67,8 +67,8 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v4
         with:
-          context: ./service/quarkus
-          file: ./service/quarkus/Dockerfile
+          context: ./service/quarkus.sample
+          file: ./service/quarkus.sample/Dockerfile
           push: false
           tags: ${{ steps.prep.outputs.image_tag }}
           load: true

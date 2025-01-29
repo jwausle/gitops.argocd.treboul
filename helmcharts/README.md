@@ -1,7 +1,10 @@
 # Helm charts
 
-* [spring-boot-app](./spring-boot-app)
-* [whoami](./whoami)
+> Helmchart repository index: [https://helm.ligidi.africa/index.yaml](https://helm.ligidi.africa/index.yaml)
+
+* quarkus-app ([src](./quarkus-app)) - e.g. https://helm.ligidi.africa/charts/quarkus-app-1.0.0.tgz
+* spring-boot-app ([src](./spring-boot-app)) - e.g. https://helm.ligidi.africa/charts/spring-boot-app-1.0.0.tgz
+* whoami ([src](./whoami)) - e.g. https://helm.ligidi.africa/charts/whoami-1.0.0.tgz
 
 ## Deploying the helm charts
 
