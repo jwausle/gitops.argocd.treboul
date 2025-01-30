@@ -221,17 +221,18 @@ app:
     - name: other-secret
 ```
 
-### Excluding keys from a secret
+### Including/excluding keys from a secret
 
 Sometimes it might be necessary to only include a subset of `stringData` or `data`entries of a
 kubernetes secret. This is supported by explicitly including the required keys:
 
 ```yaml
 # values.yaml
-secrets:
-  - name: my-secret
-    items:
-      - key: spring.datasource.password
+app:
+  secrets:
+    - name: my-secret
+      items:
+        - key: spring.datasource.password
 ```
 
 This would only mount `spring.datasource.password`, but not `service.api-key`.
@@ -259,11 +260,12 @@ If we instead want to set `spring.datasource.password`, we can use the following
 
 ```yaml
 # values.yaml
-secrets:
-  - name: db-secret
-    items:
-      - key: PASSWORD
-        path: spring.datasource.password
+app:
+  secrets:
+    - name: db-secret
+      items:
+        - key: PASSWORD
+          path: spring.datasource.password
 ```
 
 ### Additional mount options
@@ -273,15 +275,16 @@ multiple sources of type `secret`. Therefore, you can specify the same options:
 
 ```yaml
 # config options for a secret
-secrets:
-  - name: db-secret # the name of the kubernetes secret to be mounted
-    optional: true # whether the secret must exist (false, by default)
+app:
+  secrets:
+    - name: db-secret # the name of the kubernetes secret to be mounted
+      optional: true # whether the secret must exist (false, by default)
 
-    # only mount a subset of keys from the secret
-    items:
-      - key: PASSWORD # which key from the secret should be mounted
-        path: spring.datasource.password # the new filename (must match a valid spring boot application property)
-        mode: 511 # the mode for the mounted file (400, by default)
+      # only mount a subset of keys from the secret
+      items:
+        - key: PASSWORD # which key from the secret should be mounted
+          path: spring.datasource.password # the new filename (must match a valid spring boot application property)
+          mode: 511 # the mode for the mounted file (400, by default)
 ```
 
 ### Alternative as environment variable

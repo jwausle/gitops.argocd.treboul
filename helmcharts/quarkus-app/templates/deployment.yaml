@@ -1,4 +1,5 @@
 {{- $secrets := (include "quarkus-app.secrets" . | fromYaml).secrets }}
+{{- $secretsDir := "/var/run/secrets/app" }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -37,6 +38,16 @@ spec:
         - name: config-volume
           configMap:
             name: {{ include "quarkus-app.fullname" . }}-config
+        {{- if $secrets }}
+        - name: secrets-volume
+          projected:
+            defaultMode: 0400
+            sources:
+              {{- range $secrets }}
+              - secret:
+                {{- toYaml . | nindent 18 }}
+              {{- end }}
+        {{- end }}
         {{- if (trim .Values.extraVolumes) }}
         {{- tpl .Values.extraVolumes . | trim | nindent 8 }}
         {{- end }}
@@ -47,12 +58,17 @@ spec:
           securityContext:
             runAsUser: 0
             privileged: true
-          command: [ "sh", "-c", "cat {{ trimSuffix "/" .Values.app.pathInContainer }}/config/application.yaml && find /var/run/secrets/app" ]
+          command: [ "sh", "-c", "cat {{ trimSuffix "/" .Values.app.pathInContainer }}/config/application.yaml && find {{ printf "%s" $secretsDir }}" ]
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           volumeMounts:
             - name: config-volume
               mountPath: {{ trimSuffix "/" .Values.app.pathInContainer }}/config
               readOnly: true
+            {{- if $secrets }}
+            - name: secrets-volume
+              mountPath: "{{ printf "%s" $secretsDir }}"
+              readOnly: true
+            {{- end }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
@@ -64,6 +80,11 @@ spec:
             - name: config-volume
               mountPath: {{ trimSuffix "/" .Values.app.pathInContainer }}/config
               readOnly: true
+            {{- if $secrets }}
+            - name: secrets-volume
+              mountPath: "{{ printf "%s" $secretsDir }}"
+              readOnly: true
+            {{- end }}
             {{- if (trim .Values.extraVolumeMounts) }}
             {{- tpl .Values.extraVolumeMounts . | trim | nindent 12 }}
             {{- end }}
@@ -72,8 +93,10 @@ spec:
               containerPort: {{ include "quarkus-app.applicationPort" . }}
               protocol: TCP
           env:
-            - name: SMALLRYE_CONFIG_SOURCE_FILE_LOCATIONS
+            - name: QUARKUS_CONFIG_LOCATIONS
               value: "{{ trimSuffix "/" .Values.app.pathInContainer }}/config"
+            - name: SMALLRYE_CONFIG_SOURCE_FILE_LOCATIONS
+              value: "{{ printf "%s" $secretsDir }}"
             {{- if (trim .Values.extraEnv) }}
             {{- tpl .Values.extraEnv . | trim | nindent 12 }}
             {{- end }}

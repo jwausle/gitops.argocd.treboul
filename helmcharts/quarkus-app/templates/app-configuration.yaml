@@ -7,13 +7,3 @@ metadata:
 data:
   application.yaml: |
     {{- include "quarkus-app.mergedConfig" . | nindent 4 }}
-    {{- $secrets := (include "quarkus-app.secrets" . | fromYaml).secrets }}
-    {{- if $secrets }}
-    ---
-    # (Magic) Import mounted kubernetes secrets as application properties
-    smallrye:
-      config:
-        source:
-          file:
-            locations: /var/run/secrets/app/
-    {{- end }}
