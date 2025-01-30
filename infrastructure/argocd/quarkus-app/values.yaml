@@ -1,6 +1,3 @@
-ingressroute:
-  path: "/quarkus-sample"
-
 quarkus-app:
   app:
     config:
@@ -13,14 +10,15 @@ quarkus-app:
           - key: "secret-key"
             path: "sample.secret.value"
 
-  image:
-    repository: "docker.ligidi.africa/quarkus.sample"
-    tag: 1.0.2
+image:
+  repository: "docker.ligidi.africa/quarkus.sample"
+  tag: 1.0.2
 
-  imagePullSecrets:
-    - name: "docker-ligidi-africa-pull-secret"
+imagePullSecrets:
+  - name: "docker-ligidi-africa-pull-secret"
 
-  ingressroute:
-    enabled: true
-    path: "/api/quarkus-sample"
+ingressroute:
+  enabled: true
+  path: "/quarkus-sample"
+
 
