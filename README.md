@@ -69,12 +69,14 @@ sequenceDiagram
     CI ->>DockerRegistry: (2) docker push
     activate DockerRegistry
     note right of DockerRegistry: Image:v1.0.0
-    CI ->> HelmRepository: (3,4) helm push
+    CI ->> CD: (3) git push main - Integrate Image:v1.1.0, Chart:v2.0.0 into Argocd Application
+    activate CD
+    Note right of CD: CI<br/>auto deploy <br/>in GitRepo
+    CI ->> HelmRepository: (4,5) helm push
     activate HelmRepository
     note right of HelmRepository: Chart:v2.0.0
-    Developer ->> CD: (5) git push main - Integrate Image:v1.1.0, Chart:v2.0.0 into Argocd Application
-    Note right of CD: Configure<br/>next Deployment <br/>in GitRepo
     Developer ->> CD: (6) git push prod - Move deployment tag to next deployment commit
+    activate CD
     Note right of CD: Move Git Tag `prod`<br/>identify deployment <br/> commit
     loop ArgoCD sync
     Argocd ->>CD: (7) fetch
@@ -84,6 +86,8 @@ sequenceDiagram
     end
     deactivate DockerRegistry
     deactivate HelmRepository
+    deactivate CD
+    deactivate CD
 ```
 
 ## Domain 'ligidi.africa'
@@ -105,11 +109,20 @@ stateDiagram
             direction LR
             Traefik(ligidi.africa/*) --> Service(whoami)
             Traefik(ligidi.africa/*) --> Service(spring)
+            Traefik(ligidi.africa/*) --> Service(quarkus)
             argocd.ligidi.africa
         }    
     }
     
 ```
+
+* link: https://ligidi.africa
+* link: https://ligidi.africa/api/spring-sample/index.html - sample web side
+* link: https://ligidi.africa/api/spring-sample/any/other/path
+* link: https://ligidi.africa/api/quarkus-sample/index.html - sample web side
+* link: https://ligidi.africa/api/quarkus-sample/all - loaded properties
+* link: https://ligidi.africa/api/quarkus-sample/any/other/path 
+* link: https://ligidi.africa/api/whoami/any/other/path
 
 ### Reverse proxy dashboard - https://ligidi.africa/dasboard/#
 
