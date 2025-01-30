@@ -133,7 +133,7 @@ class SampleRequestHandler {
                     |    <h1>Configured color - ${properties.htmlBackgroundColor}</h1>
                     |    <p>${properties.config.key} - ${properties.config.value}</p>
                     |    <p>${properties.secret.key} - ${properties.secret.value}</p>
-                    |    <h2>Treboul Quarkus Sample</h2>
+                    |    <h2>Treboul Quarkus Sample!</h2>
                     |  </div>  
                     |</body>
                     |</html>
