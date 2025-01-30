@@ -26,7 +26,7 @@ class SampleApplication {
     @ConfigProperty(name = "sample.secret.key")
     private lateinit var secretKey: String
 
-    @ConfigProperty(name = "sample.secret.key")
+    @ConfigProperty(name = "sample.secret.value")
     private lateinit var secretValue: String
 
     @ConfigProperty(name = "sample.html-background-color")

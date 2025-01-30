@@ -1,6 +1,10 @@
 quarkus:
   http:
     port: 8080
+  log:
+    category:
+      "io.smallrye":
+        level: DEBUG
 
 sample:
   config:
@@ -18,3 +22,4 @@ my-secret2: "must-overwrite yaml"
 # - ordinal doc: https://smallrye.io/smallrye-config/3.10.2/config/getting-started/
 # - file system: https://smallrye.io/smallrye-config/3.10.2/config-sources/filesystem/
 config_ordinal: 99
+
