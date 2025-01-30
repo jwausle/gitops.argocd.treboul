@@ -9,7 +9,7 @@ quarkus-app:
       sample:
         config:
           value: "helmchart-config"
-      html-background-color: "red"
+        html-background-color: "red"
     secrets:
       - name: "quarkus-sample-app-secret"
         items:
