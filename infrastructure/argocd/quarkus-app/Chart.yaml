@@ -1,9 +1,9 @@
 apiVersion: v1
-description: "Deployment spring-boot-app example"
-name: "spring-sample-app"
-version: 1.0.0
+description: "Deployment quarkus-app example"
+name: "quarkus-sample-app"
+version: 1.0.1
 
 dependencies:
   - name: "quarkus-app"
-    version: "1.0.0"
+    version: "1.0.1"
     repository: "https://helm.ligidi.africa"
