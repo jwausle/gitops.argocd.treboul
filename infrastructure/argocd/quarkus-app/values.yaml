@@ -1,7 +1,5 @@
-secret:
-  name: "quarkus-sample-app-secret"
-  key: "secret-key"
-  value: "helmchart-secret"
+ingressroute:
+  path: "/quarkus-sample"
 
 quarkus-app:
   app:
@@ -10,7 +8,7 @@ quarkus-app:
         config:
           value: "helmchart-config"
     secrets:
-      - name: "spring-sample-app-secret"
+      - name: "quarkus-sample-app-secret"
         items:
           - key: "secret-key"
             path: "sample.secret.value"
