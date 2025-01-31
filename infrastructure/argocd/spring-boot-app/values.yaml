@@ -17,7 +17,7 @@ spring-boot-app:
 
   image:
     repository: "docker.ligidi.africa/spring.sample"
-    tag: "1.1.0"
+    tag: 1.1.1
 
   imagePullSecrets:
     - name: "docker-ligidi-africa-pull-secret"
