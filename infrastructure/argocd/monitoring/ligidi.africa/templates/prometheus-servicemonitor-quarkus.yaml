@@ -1,0 +1,20 @@
+{{- if .Values.prometheus.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: "{{ .Values.app.monitor.name }}-quarkus"
+spec:
+  endpoints:
+    - path: "/q/metrics"
+      port: "http"
+  namespaceSelector:
+    matchNames:
+      - "{{ .Values.app.monitor.namespace }}"
+  selector:
+    matchLabels:
+      monitor: "{{ .Values.app.monitor.namespace }}-service-quarkus"
+  propagateLabels:
+    - source:
+        - service
+      rename: "application"
+{{- end }}

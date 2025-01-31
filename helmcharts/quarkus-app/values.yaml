@@ -105,7 +105,7 @@ service:
   # Additional service labels
   # The labels will be passed through the helm tpl function, so helm variable substitution is supported
   labels:
-    monitor: "{{ .Release.Namespace }}-service"
+    monitor: "{{ .Release.Namespace }}-service-quarkus"
 
 ingressroute:
   # enable/disable the deployment of a traefik ingressroute resource with associated middleware to
